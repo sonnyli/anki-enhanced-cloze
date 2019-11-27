@@ -210,37 +210,22 @@ def setup_menu(self):
 addHook("browser.setupMenus", setup_menu)
 
 
-
-_oldSaveNow = Editor.saveNow
-def on_save_now(self, *args, **kwargs):
-    if self.web is None: # This occur if the window is already closing, but closing has not yet ended.
-        return
-    if not self.note or not check_model(self.note.model()):
-        return _oldSaveNow(self, *args, **kwargs)
-    self.saveTags()
-    def remaining(res):#arg given because it is required for callback
-        generate_enhanced_cloze(self.note)
-
-        self.loadNote()
-        self.web.setFocus()
-        self.web.eval(f"focusField({self.currentField});")
-        ret = _oldSaveNow(self, *args, **kwargs)
-    return self.web.evalWithCallback("saveField('key');", remaining)
-
-Editor.saveNow = on_save_now
-
-def onCloze(self):
-    _oldSaveNow(self, self._onCloze, keepFocus = True)
-Editor.onCloze = onCloze
-Editor._links["cloze"] = onCloze
-
-# AddCards.addCards = wrap(AddCards.addCards, on_add_cards, "around")
-
-# EditCurrent.onSave = wrap(EditCurrent.onSave, on_edit_current_save, "around")
-
-
-
-
+# copied from "Cloze (Hide All)" by phu54321 from
+# https://ankiweb.net/shared/info/1709973686
+# 
+def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
+    """Automatically generate overlapping clozes before adding cards"""
+    def newCallback():
+        # self.note may be None when editor isn't yet initialized.
+        # ex: entering browser
+        if self.note and self.note.model()["name"] == "Enhanced Cloze 2.1":
+            generate_enhanced_cloze(self.note)
+            if not self.addMode:
+                self.note.flush()
+                self.mw.requireReset()
+        callback()
+    return _old(self, newCallback, keepFocus)
+Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 
 
 def addModel():
