@@ -10,16 +10,18 @@ import re
 import os
 from shutil import copy
 
-from anki.hooks import addHook
+from anki.hooks import addHook, wrap
 from aqt import mw
-from aqt.utils import showInfo
 from aqt.addcards import AddCards
 from aqt.browser import Browser
 from aqt.editcurrent import EditCurrent
-from aqt.utils import tooltip
-from anki.hooks import addHook, wrap
 from aqt.editor import Editor
 from aqt.qt import *
+from aqt.utils import (
+    showInfo,
+    tooltip
+)
+
 from .model import enhancedModel
 
 # global variables
