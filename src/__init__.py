@@ -4,6 +4,7 @@
 #            2017- LuZhe610
 #            2019 Arthur Milchior
 #            2019 Hyun Woo Park (phu54321@naver.com)
+#            (for the included js see the top of these files)
 
 
 import re
