@@ -56,12 +56,7 @@ def generate_enhanced_cloze(note):
             note[dest_field_name] = ""
 
         note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
-
-        # Anki will warn if cloze notes include no cloze or more strictly, no single-line cloze
-        # so I use a invisible single-line cloze {{cX::@@@@}} to cheat Anki :)
-        note["Cloze1"] = src_content + \
-            '<div style="display:none">{{c1::@@@@}}</div>' + \
-            '<div id="card-cloze-id" style="display:none">c0</div>'
+        note["Cloze1"] = src_content 
         return
     else:
         in_use_clozes_numbers = sorted(
