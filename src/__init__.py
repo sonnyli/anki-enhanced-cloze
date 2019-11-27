@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# Copyright: Ankitects Pty Ltd and contributors
+#            2017- LuZhe610
+#            2019 Arthur Milchior
+#            2019 Hyun Woo Park (phu54321@naver.com)
+
 
 import re
 import os
