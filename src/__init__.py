@@ -24,6 +24,7 @@ from aqt.utils import (
 
 from .model import enhancedModel
 
+
 # global variables
 genuine_cloze_answer_array = []
 genuine_cloze_hint_array = []
@@ -31,8 +32,9 @@ pseudo_cloze_answer_array = []
 pseudo_cloze_hint_array = []
 current_cloze_field_number = 0
 
+
 # constants
-MODEL_NAME = "Enhanced Cloze"
+MODEL_NAME = "Enhanced Cloze 2.1"
 CONTENT_FIELD_NAME = "# Content"
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 UPDATE_ENHANCED_CLOZE_SHORTCUT = "Ctrl+Alt+C"
@@ -118,7 +120,8 @@ def generate_enhanced_cloze(note):
 
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
-    return re.search("Enhanced Cloze 2.1", model["name"])
+    return re.search(MODEL_NAME, model["name"])
+
 
 def exists_model():
     "Whether the collection contains model Enhanced Cloze 2.1"
@@ -127,8 +130,8 @@ def exists_model():
             return True
     return False
 
-def process_cloze(matchObj):
 
+def process_cloze(matchObj):
     cloze_string = matchObj.group()  # eg. {{c1::aa[::bbb]}}
     index_of_answer = cloze_string.find("::") + 2
     index_of_hint = cloze_string.rfind("::") + 2
@@ -168,6 +171,7 @@ def process_cloze(matchObj):
             '_cloze-id_', cloze_id).replace('_content_', cloze_string)
         return new_html
 
+
 def update_all_enhanced_clozes_in_browser(self, evt=None):
     browser = self
     mw = browser.mw
@@ -203,6 +207,7 @@ def setup_menu(self):
     a.setShortcut(QKeySequence(UPDATE_ENHANCED_CLOZE_SHORTCUT))
     a.triggered.connect(
         lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
+addHook("browser.setupMenus", setup_menu)
 
 
 
@@ -237,7 +242,6 @@ Editor._links["cloze"] = onCloze
 
 
 
-addHook("browser.setupMenus", setup_menu)
 
 def addModel():
     if exists_model():
