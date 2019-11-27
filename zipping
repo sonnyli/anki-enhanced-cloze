@@ -1,2 +1,2 @@
-rm ec.zip
-zip ec.zip *.py *js README.md zipping *html *css
+rm ec.ankiaddon
+cd src && zip ../ec.ankiaddon * && cd ..
