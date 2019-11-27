@@ -235,11 +235,23 @@ def addModel():
     if exists_model():
         #print("Model exists")
         return
+    addon_path = os.path.dirname(__file__)
+    front = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
+    css = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
+    back = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
+    with open(front) as f:
+        enhancedModel["tmpls"][0]["qfmt"] = f.read()
+    with open(css) as f:
+        enhancedModel["css"] = f.read()
+    with open(back) as f:
+        enhancedModel["tmpls"][0]["afmt"] = f.read()
     mw.col.models.add(enhancedModel)
-    jsToCopy = ["_Autolinker.min.js", "_jquery-3.2.1.min.js", "_jquery.hotkeys.js", "_jquery.visible.min.js"]
+    jsToCopy = ["_Autolinker.min.js",
+                "_jquery-3.2.1.min.js",
+                "_jquery.hotkeys.js",
+                "_jquery.visible.min.js",
+               ]
     for file in jsToCopy:
         file = os.path.join(mw.addonManager.addonsFolder(__name__), file)
-        print(f"File is {file}")
-        copy(file,mw.col.media.dir())
-
+        copy(file, mw.col.media.dir())
 addHook("profileLoaded", addModel)
