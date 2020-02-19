@@ -11,8 +11,11 @@ import re
 import os
 from shutil import copy
 
+# from anki import hooks
 from anki.hooks import addHook, wrap
+from anki import version as anki_version
 from aqt import mw
+from aqt import gui_hooks
 from aqt.addcards import AddCards
 from aqt.browser import Browser
 from aqt.editcurrent import EditCurrent
@@ -215,13 +218,12 @@ addHook("browser.setupMenus", setup_menu)
 
 # copied from "Cloze (Hide All)" by phu54321 from
 # https://ankiweb.net/shared/info/1709973686
-# 
 def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
     """Automatically generate overlapping clozes before adding cards"""
     def newCallback():
         # self.note may be None when editor isn't yet initialized.
         # ex: entering browser
-        if self.note and self.note.model()["name"] == "Enhanced Cloze 2.1":
+        if self.note and self.note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(self.note)
             if not self.addMode:
                 self.note.flush()
@@ -229,6 +231,21 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
         callback()
     return _old(self, newCallback, keepFocus)
 Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
+
+
+old_anki = tuple(int(i) for i in anki_version.split(".")) < (2, 1, 21)
+if old_anki:
+    Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
+else:
+    # downside: Anki will warn about missing clozes
+    # def maybe_generate_enhanced_cloze(note):
+    #     if note and note.model()["name"] == MODEL_NAME:
+    #         generate_enhanced_cloze(note)
+    # hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
+    def maybe_generate_enhanced_cloze(changed, note, fieldindex):
+        if note and note.model()["name"] == MODEL_NAME:
+            generate_enhanced_cloze(note)
+    gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
 
 
 def addModel():
