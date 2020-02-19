@@ -119,8 +119,8 @@
     var genuineClozeTotalNumber = $('.genuine-cloze').length;
     $(function () {
         // INITIALIZE CLOZES
-        //      genuine clozes refer to those belong to current card and need to be answered, e.g. {{c2::abc}} on card2
-        //      pseudo clozes refer to the opposite, e.g. {{c1::abc}} and {{c3::abc}} on card2
+        //      genuine clozes refer to those belong to current card and need to be answered, e.g. { {c2::abc} } on card2
+        //      pseudo clozes refer to the opposite, e.g. { {c1::abc} } and { {c3::abc} } on card2
         $('.genuine-cloze, .pseudo-cloze').each(function (index, elem) {
             toggleCloze(elem, 'hint')
         });
