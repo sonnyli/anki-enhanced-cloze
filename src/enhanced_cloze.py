@@ -11,11 +11,9 @@ import re
 import os
 from shutil import copy
 
-# from anki import hooks
 from anki.hooks import addHook, wrap
 from anki import version as anki_version
 from aqt import mw
-from aqt import gui_hooks
 from aqt.addcards import AddCards
 from aqt.browser import Browser
 from aqt.editcurrent import EditCurrent
@@ -238,10 +236,12 @@ if old_anki:
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     # downside: Anki will warn about missing clozes
+    # from anki import hooks
     # def maybe_generate_enhanced_cloze(note):
     #     if note and note.model()["name"] == MODEL_NAME:
     #         generate_enhanced_cloze(note)
     # hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
+    from aqt import gui_hooks
     def maybe_generate_enhanced_cloze(changed, note, fieldindex):
         if note and note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
