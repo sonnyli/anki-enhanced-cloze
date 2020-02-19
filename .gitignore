@@ -113,3 +113,5 @@ aqt/
 /src/ec.zip
 /meta.json
 /ec.zip
+
+*.ankiaddon
