@@ -252,6 +252,8 @@ def addModel():
                 "_jquery.visible.min.js",
                ]
     for file in jsToCopy:
-        file = os.path.join(mw.addonManager.addonsFolder(__name__), file)
+        currentfile = os.path.abspath(__file__)
+        folder = os.path.basename(os.path.dirname(currentfile))
+        file = os.path.join(mw.pm.addonFolder(), folder, file)
         copy(file, mw.col.media.dir())
 addHook("profileLoaded", addModel)
