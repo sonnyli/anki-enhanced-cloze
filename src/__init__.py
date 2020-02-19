@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/gpl.html
 # Copyright: Ankitects Pty Ltd and contributors
 #            2017- LuZhe610
 #            2019 Arthur Milchior
