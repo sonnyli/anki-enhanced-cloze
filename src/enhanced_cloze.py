@@ -26,6 +26,13 @@ from aqt.utils import (
 from .model import enhancedModel
 
 
+def gc(arg, fail=False):
+    conf = mw.addonManager.getConfig(__name__)
+    if conf:
+        return conf.get(arg, fail)
+    return fail
+
+
 # global variables
 genuine_cloze_answer_array = []
 genuine_cloze_hint_array = []
@@ -38,7 +45,7 @@ current_cloze_field_number = 0
 MODEL_NAME = "Enhanced Cloze 2.1"
 CONTENT_FIELD_NAME = "# Content"
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
-UPDATE_ENHANCED_CLOZE_SHORTCUT = "Ctrl+Alt+C"
+
 
 
 def generate_enhanced_cloze(note):
@@ -200,7 +207,7 @@ def setup_menu(self):
     menu = browser.form.menuEdit
     menu.addSeparator()
     a = menu.addAction('Update Enhanced Clozes')
-    a.setShortcut(QKeySequence(UPDATE_ENHANCED_CLOZE_SHORTCUT))
+    a.setShortcut(QKeySequence(gc("update enhanced cloze shortcut")))
     a.triggered.connect(
         lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
 addHook("browser.setupMenus", setup_menu)
