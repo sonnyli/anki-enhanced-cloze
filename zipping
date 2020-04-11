@@ -1,2 +1,0 @@
-rm ec.ankiaddon
-cd src && zip ../ec.ankiaddon * && cd ..
