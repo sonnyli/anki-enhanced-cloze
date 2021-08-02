@@ -7,22 +7,15 @@
 #            (for the included js see the top of these files)
 
 
-import re
 import os
+import re
 from shutil import copy
 
-from anki.hooks import addHook, wrap
 from anki import version as anki_version
-from aqt import mw
-from aqt.addcards import AddCards
-from aqt.browser import Browser
-from aqt.editcurrent import EditCurrent
+from anki.hooks import addHook, wrap
+from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
-from aqt.utils import (
-    showInfo,
-    tooltip
-)
 
 from .model import enhancedModel
 
@@ -44,9 +37,8 @@ current_cloze_field_number = 0
 
 # constants
 MODEL_NAME = "Enhanced Cloze 2.1"
-CONTENT_FIELD_NAME = "# Content"
+CONTENT_FIELD_NAME = "Content"
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
-
 
 
 def generate_enhanced_cloze(note):
@@ -65,7 +57,7 @@ def generate_enhanced_cloze(note):
             note[dest_field_name] = ""
 
         note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
-        note["Cloze1"] = src_content 
+        note["Cloze1"] = src_content
         return
     else:
         in_use_clozes_numbers = sorted(
@@ -242,6 +234,7 @@ else:
     #         generate_enhanced_cloze(note)
     # hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
     from aqt import gui_hooks
+
     def maybe_generate_enhanced_cloze(changed, note, fieldindex):
         if note and note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
@@ -267,7 +260,7 @@ def addModel():
                 "_jquery-3.2.1.min.js",
                 "_jquery.hotkeys.js",
                 "_jquery.visible.min.js",
-               ]
+                ]
     for file in jsToCopy:
         currentfile = os.path.abspath(__file__)
         folder = os.path.basename(os.path.dirname(currentfile))
