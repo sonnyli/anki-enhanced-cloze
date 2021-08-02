@@ -4,6 +4,7 @@
 #            2017- LuZhe610
 #            2019 Arthur Milchior
 #            2019 Hyun Woo Park (phu54321@naver.com)
+#            2021 Jakub Fidler
 #            (for the included js see the top of these files)
 
 
@@ -12,6 +13,7 @@ import re
 from shutil import copy
 
 from anki import version as anki_version
+import anki
 from anki.hooks import addHook, wrap
 from anki.notes import NoteFieldsCheckResult
 from aqt import gui_hooks, mw
@@ -224,30 +226,8 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
     return _old(self, newCallback, keepFocus)
 Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 
-
-original_update_duplicate_display = Editor._update_duplicate_display
-def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
-    if self.note._note_type['name'] == MODEL_NAME:
-        if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
-            result = NoteFieldsCheckResult.NORMAL
-        if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
-            result = NoteFieldsCheckResult.NORMAL
-    original_update_duplicate_display(self, result)
-Editor._update_duplicate_display = _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
-
-
-def ignore_some_cloze_problems_for_enh_clozes(problem, note):
-    if note._note_type['name']  == MODEL_NAME:
-        if problem == tr.adding_cloze_outside_cloze_notetype():
-            return None
-        elif problem == tr.adding_cloze_outside_cloze_field():
-            return None
-        return problem
-gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
-
-
-old_anki = tuple(int(i) for i in anki_version.split(".")) < (2, 1, 21)
-if old_anki:
+anki_version_tuple = tuple(int(i) for i in anki_version.split("."))
+if anki_version_tuple < (2, 1, 21):
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     # downside: Anki will warn about missing clozes
@@ -262,6 +242,27 @@ else:
         if note and note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
     gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
+
+if anki_version_tuple >= (2, 1, 45):
+    original_update_duplicate_display = Editor._update_duplicate_display
+    def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
+        if self.note._note_type['name'] == MODEL_NAME:
+            if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+                result = NoteFieldsCheckResult.NORMAL
+            if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+                result = NoteFieldsCheckResult.NORMAL
+        original_update_duplicate_display(self, result)
+    Editor._update_duplicate_display = _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
+
+
+    def ignore_some_cloze_problems_for_enh_clozes(problem, note):
+        if note._note_type['name']  == MODEL_NAME:
+            if problem == tr.adding_cloze_outside_cloze_notetype():
+                return None
+            elif problem == tr.adding_cloze_outside_cloze_field():
+                return None
+            return problem
+    gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
 
 def addModel():
