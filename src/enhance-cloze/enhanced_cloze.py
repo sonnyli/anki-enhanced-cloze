@@ -41,14 +41,21 @@ current_cloze_field_number = 0
 
 # constants
 MODEL_NAME = "Enhanced Cloze 2.1"
-CONTENT_FIELD_NAME = "Content"
+CONTENT_FIELD_NAMES = ["Content", "# Content"]
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 
 
 def generate_enhanced_cloze(note):
-    # cloze_id means, eg. c1, cloze_number means, eg. 1
 
-    src_content = note[CONTENT_FIELD_NAME]
+    # in newer version of Anki ~2.1.45 when the notetype gets imported the "# " seems to be ignored
+    # when the template with the name already exists, it won't be changed instead the add-on will
+    # work with both version of the notetype (the one with the "# Content" field and the one with
+    # the "Content" field)
+    try:
+        src_content = note[CONTENT_FIELD_NAMES[0]]
+    except KeyError:
+        src_content = note[CONTENT_FIELD_NAMES[1]]
+        
 
     # Get ids of in-use clozes
     cloze_start_regex = r"\{\{c\d+::"

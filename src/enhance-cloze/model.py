@@ -5,7 +5,7 @@ enhancedModel = {
     "did": 1511491712850,
     "usn": -1,
     "flds": [
-        {"name": "# Content",     "media": [], "sticky": False, "rtl": False, "ord": 0,  "font": "Arial", "size": 20},
+        {"name": "Content",     "media": [], "sticky": False, "rtl": False, "ord": 0,  "font": "Arial", "size": 20},
         {"name": "Note",          "media": [], "sticky": False, "rtl": False, "ord": 1,  "font": "Arial", "size": 20},
         {"name": "Source",        "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
         {"name": "Extra",         "media": [], "sticky": False, "rtl": False, "ord": 3,  "font": "Arial", "size": 20},
