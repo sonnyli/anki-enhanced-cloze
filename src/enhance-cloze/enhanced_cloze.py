@@ -8,14 +8,18 @@
 #            (for the included js see the top of these files)
 
 
+from anki import version as anki_version
+ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
+
 import os
 import re
 from shutil import copy
 
-from anki import version as anki_version
-import anki
 from anki.hooks import addHook, wrap
-from anki.notes import NoteFieldsCheckResult
+
+if ANKI_VERSION_TUPLE >= (2, 1, 45):
+    from anki.notes import NoteFieldsCheckResult
+
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
@@ -233,8 +237,7 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
     return _old(self, newCallback, keepFocus)
 Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 
-anki_version_tuple = tuple(int(i) for i in anki_version.split("."))
-if anki_version_tuple < (2, 1, 21):
+if ANKI_VERSION_TUPLE < (2, 1, 21):
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     # downside: Anki will warn about missing clozes
@@ -250,7 +253,7 @@ else:
             generate_enhanced_cloze(note)
     gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
 
-if anki_version_tuple >= (2, 1, 45):
+if ANKI_VERSION_TUPLE >= (2, 1, 45):
     original_update_duplicate_display = Editor._update_duplicate_display
     def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
         if self.note._note_type['name'] == MODEL_NAME:
