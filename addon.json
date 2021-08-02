@@ -1,0 +1,11 @@
+{
+    "display_name": "enhance-cloze",
+    "module_name": "enhance-cloze",
+    "repo_name": "anki-enhanced-cloze",
+    "ankiweb_id": "1990296174",
+    "author": "RisingOrange",
+    "conflicts": [],
+    "targets": [
+        "anki21"
+    ]
+}
