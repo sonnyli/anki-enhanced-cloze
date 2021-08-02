@@ -13,9 +13,11 @@ from shutil import copy
 
 from anki import version as anki_version
 from anki.hooks import addHook, wrap
+from anki.notes import NoteFieldsCheckResult
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
+from aqt.utils import tr
 
 from .model import enhancedModel
 
@@ -221,6 +223,27 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
         callback()
     return _old(self, newCallback, keepFocus)
 Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
+
+
+original_update_duplicate_display = Editor._update_duplicate_display
+def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
+    if self.note._note_type['name'] == MODEL_NAME:
+        if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
+            result = NoteFieldsCheckResult.NORMAL
+        if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
+            result = NoteFieldsCheckResult.NORMAL
+    original_update_duplicate_display(self, result)
+Editor._update_duplicate_display = _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
+
+
+def ignore_some_cloze_problems_for_enh_clozes(problem, note):
+    if note._note_type['name']  == MODEL_NAME:
+        if problem == tr.adding_cloze_outside_cloze_notetype():
+            return None
+        elif problem == tr.adding_cloze_outside_cloze_field():
+            return None
+        return problem
+gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
 
 old_anki = tuple(int(i) for i in anki_version.split(".")) < (2, 1, 21)
