@@ -17,7 +17,7 @@ from anki.hooks import addHook, wrap
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
-from aqt.utils import tr
+from aqt.utils import showInfo, tr
 
 from .model import enhancedModel
 
@@ -275,6 +275,13 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
 
 def addModel():
     if exists_model():
+        return
+
+    if ANKI_VERSION_TUPLE >= (2, 1, 45):
+        showInfo(
+            'Installing the Enhanced Cloze 2.1 add-on on\nAnki >= 2.1.45 requires some extra steps:\nhttps://ankiweb.net/shared/info/1990296174', 
+            title="Enhanced Cloze 2.1",
+        )
         return
 
     addon_path = os.path.dirname(__file__)
