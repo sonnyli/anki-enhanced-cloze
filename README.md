@@ -1,18 +1,11 @@
 # Enhanced cloze 2.1
-This add-on allows to improve clozes usage. See the [original
-author](https://ankiweb.net/shared/info/873439973) description for more details. 
+This add-on allows to improve clozes usage. See the [AnkiWeb page](https://ankiweb.net/shared/info/1990296174) for more details. 
 
-You don't need need JSbooster anymore and no longer need to import a deck.
-
-## general warnings
-- You should not use this add-on at the moment. This add-on has no maintainer. In 2020-02 
-  it seems to work witht the current version of Anki. But who knows if this will hold true for future 
-  versions of Anki. If something breaks there's a good chance that no one will help you so.
-  USE THIS AT YOUR OWN RISK.
-- For each cloze you add this add-on copies the whole text. So if you paste 1000 words into the 
-  first field of an enhanced cloze note and do 20 clozes the note will have ultimately 21000 words.
-  If you do this often the size of your database will increase substantially. You can only use 
-  Ankiweb if your database (excluding any images which are not in the database) is smaller than 100mb.
+## general warning
+For each cloze you add this add-on copies the whole text. So if you paste 1000 words into the 
+first field of an enhanced cloze note and do 20 clozes the note will have ultimately 21000 words.
+If you do this often the size of your database will increase substantially. You can only use 
+Ankiweb if your database (excluding any images which are not in the database) is smaller than 100mb.
 
 ## Known Limitations, Bugs, Todo
 - On Ankidroid 2.9 with Android 10 in 2019-11-27 it doesn't work properly: When you have multiple
@@ -28,9 +21,6 @@ You don't need need JSbooster anymore and no longer need to import a deck.
 - the version for 2.0 allows "to go without clozes using this cloze-type templates. Just type
   question in Content field and answer in Note field.". I removed this in 2019-11 because a side
   effect was that when using the ctrl+shift+c shortcut clozes always started with c2 ...
-
-## Compatibility with other add-ons
-- in 2019-11-27 no conflict with the latest version of the official "cloze hide all".
 
 ## Warning
 Make a backup before updating from 2.0 note type to 2.1 note type.
