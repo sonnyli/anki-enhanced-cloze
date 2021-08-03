@@ -8,18 +8,12 @@
 #            (for the included js see the top of these files)
 
 
-from anki import version as anki_version
-ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
-
 import os
 import re
 from shutil import copy
 
+from anki import version as anki_version
 from anki.hooks import addHook, wrap
-
-if ANKI_VERSION_TUPLE >= (2, 1, 45):
-    from anki.notes import NoteFieldsCheckResult
-
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
@@ -237,6 +231,8 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
     return _old(self, newCallback, keepFocus)
 Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 
+
+ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
 if ANKI_VERSION_TUPLE < (2, 1, 21):
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
@@ -254,6 +250,8 @@ else:
     gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
 
 if ANKI_VERSION_TUPLE >= (2, 1, 45):
+    from anki.notes import NoteFieldsCheckResult
+
     original_update_duplicate_display = Editor._update_duplicate_display
     def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
         if self.note._note_type['name'] == MODEL_NAME:
@@ -277,8 +275,8 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
 
 def addModel():
     if exists_model():
-        #print("Model exists")
         return
+
     addon_path = os.path.dirname(__file__)
     front = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
     css = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
