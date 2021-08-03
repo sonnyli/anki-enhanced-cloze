@@ -8,13 +8,14 @@
 #            (for the included js see the top of these files)
 
 
+import json
 import os
 import re
 from shutil import copy
 
 from anki import version as anki_version
 from anki.hooks import addHook, wrap
-from aqt import gui_hooks, mw
+from aqt import mw
 from aqt.editor import Editor
 from aqt.qt import *
 from aqt.utils import showInfo, tr
@@ -27,14 +28,6 @@ def gc(arg, fail=False):
     if conf:
         return conf.get(arg, fail)
     return fail
-
-
-# global variables
-genuine_cloze_answer_array = []
-genuine_cloze_hint_array = []
-pseudo_cloze_answer_array = []
-pseudo_cloze_hint_array = []
-current_cloze_field_number = 0
 
 
 # constants
@@ -59,6 +52,8 @@ def generate_enhanced_cloze(note):
     cloze_start_regex = r"\{\{c\d+::"
     cloze_start_matches = re.findall(cloze_start_regex, src_content)
 
+    note["data"] = prepareData(src_content)
+
     # if no clozes are found, empty Cloze1 ~ Cloze20 and fill in Cloze99
     if not cloze_start_matches:
         for i_cloze_field_number in range(1, 20 + 1):
@@ -68,60 +63,71 @@ def generate_enhanced_cloze(note):
         note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
         note["Cloze1"] = src_content
         return
-    else:
-        in_use_clozes_numbers = sorted(
-            [int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
-        note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
 
-        # Fill in content in in-use cloze fields and empty content in not-in-use fields
-        global current_cloze_field_number
-        for current_cloze_field_number in range(1, 20 + 1):
+    in_use_clozes_numbers = sorted([int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
+    note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
 
-            dest_field_name = "Cloze%s" % current_cloze_field_number
-            dest_field_content = ""
+    # Fill in content in in-use cloze fields and empty content in not-in-use fields
+    for current_cloze_field_number in range(1, 20 + 1):
+        dest_field_name = "Cloze%s" % current_cloze_field_number
 
-            if not current_cloze_field_number in in_use_clozes_numbers:
-                dest_field_content = ""
-            else:
-                # Initialize the lists to store different content on each card later
-                global genuine_cloze_answer_array
-                global genuine_cloze_hint_array
-                global pseudo_cloze_answer_array
-                global pseudo_cloze_hint_array
+        if not current_cloze_field_number in in_use_clozes_numbers:
+            note[dest_field_name] = ''
+            continue
 
-                del genuine_cloze_answer_array[:]
-                del genuine_cloze_hint_array[:]
-                del pseudo_cloze_answer_array[:]
-                del pseudo_cloze_hint_array[:]
+        note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
+    return
 
-                dest_field_content = src_content
+def prepareData(content):
+    # create a string that contains data that will be passed to a card
 
-                cloze_regex = r"\{\{c\d+::[\s\S]*?\}\}"
-                dest_field_content = re.sub(
-                    cloze_regex, process_cloze, dest_field_content)
+    # (string, clozeId) tuples so that adding class names inbetween 
+    # the strings produces the html for the enhanced clozes
+    parts = []     
 
-                # Store corresponding answers and hints (gunuine or pseudo)
-                # in html of every in-use cloze fields for javascript to fetch later
-                for index, item in enumerate(genuine_cloze_answer_array):
-                    dest_field_content += '<pre style="display:none"><div id="genuine-cloze-answer-%s">%s</div></pre>' % (
-                        index, item)
-                for index, item in enumerate(genuine_cloze_hint_array):
-                    dest_field_content += '<pre style="display:none"><div id="genuine-cloze-hint-%s">%s</div></pre>' % (
-                        index, item)
-                for index, item in enumerate(pseudo_cloze_answer_array):
-                    dest_field_content += '<pre style="display:none"><div id="pseudo-cloze-answer-%s">%s</div></pre>' % (
-                        index, item)
-                for index, item in enumerate(pseudo_cloze_hint_array):
-                    dest_field_content += '<pre style="display:none"><div id="pseudo-cloze-hint-%s">%s</div></pre>' % (
-                        index, item)
+    answers = []
+    hints = []
 
-                dest_field_content += '<div style="display:none">{{c%s::@@@@}}</div>' % current_cloze_field_number
-                dest_field_content += '<div id="card-cloze-id" style="display:none">c%s</div>' % str(
-                    current_cloze_field_number)
+    cloze_regex = r"\{\{c\d+::[\s\S]*?\}\}"
+    part = ''
+    prev_m = None
+    for i, m in enumerate(re.finditer(cloze_regex, content)):
+        cloze_string = m.group()  # eg. {{c1::aa[::bbb]}}
+        index_of_answer = cloze_string.find("::") + 2
+        index_of_hint = cloze_string.rfind("::") + 2
+        cloze_id = cloze_string[2: index_of_answer - 2]  # like: c1 or c11
+        cloze_length = len(cloze_string)
 
-            note[dest_field_name] = dest_field_content
-        return
+        if index_of_answer == index_of_hint:  # actually no hint at all
+            answer = cloze_string[index_of_answer: cloze_length - 2]
+            hint = ""
+        else:
+            answer = cloze_string[index_of_answer: index_of_hint - 2]
+            hint = cloze_string[index_of_hint: cloze_length - 2]
 
+        # add text between clozes to parts
+        prev_end_idx = prev_m.end() if prev_m is not None else 0
+        part += content[prev_end_idx : m.start()]
+        prev_m = m
+
+        part += f'<span class="'
+        parts.append((part, int(cloze_id[1:])))
+
+        part = f'" index="{i}" show-state="hint" cloze-id="{cloze_id}">{{{{{cloze_id}::{answer}::{hint}}}}}</span>'
+
+        answers.append(answer)
+        hints.append(hint)
+
+    # add text after last cloze to parts
+    prev_end_idx = prev_m.end() if prev_m is not None else 0
+    part += content[prev_end_idx :]
+    parts.append((part, None))
+
+    return "<script type='text/javascript'>data=" + json.dumps({
+        'parts' : parts,
+        'answers' : answers,
+        'hints' : hints,
+    }) + "</script>"
 
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
@@ -134,47 +140,6 @@ def exists_model():
         if check_model(model):
             return True
     return False
-
-
-def process_cloze(matchObj):
-    cloze_string = matchObj.group()  # eg. {{c1::aa[::bbb]}}
-    index_of_answer = cloze_string.find("::") + 2
-    index_of_hint = cloze_string.rfind("::") + 2
-    cloze_id = cloze_string[2: index_of_answer - 2]  # like: c1 or c11
-    cloze_length = len(cloze_string)
-
-    answer = ""
-    hint = ""
-    if index_of_answer == index_of_hint:  # actually no hint at all
-        answer = cloze_string[index_of_answer: cloze_length - 2]
-        hint = ""
-    else:
-        answer = cloze_string[index_of_answer: index_of_hint - 2]
-        hint = cloze_string[index_of_hint: cloze_length - 2]
-
-    global current_cloze_field_number
-    if cloze_id != 'c' + str(current_cloze_field_number):
-        # Process pseudo-cloze
-        global pseudo_cloze_answer_array
-        global pseudo_cloze_hint_array
-        pseudo_cloze_answer_array.append(answer)
-        pseudo_cloze_hint_array.append(hint)
-        index_in_array = len(pseudo_cloze_answer_array) - 1
-        new_html = '<span class="pseudo-cloze" index="_index_" show-state="hint" cloze-id="_cloze-id_">_content_</span>'
-        new_html = new_html.replace('_index_', str(index_in_array)).replace(
-            '_cloze-id_', cloze_id).replace('_content_', cloze_string.replace("{", '[').replace("}", "]"))
-        return new_html
-    else:
-        # Process genuine-cloze
-        global genuine_cloze_answer_array
-        global genuine_cloze_hint_array
-        genuine_cloze_answer_array.append(answer)
-        genuine_cloze_hint_array.append(hint)
-        index_in_array = len(genuine_cloze_answer_array) - 1
-        new_html = '<span class="genuine-cloze" index="_index_" show-state="hint" cloze-id="_cloze-id_">_content_</span>'
-        new_html = new_html.replace('_index_', str(index_in_array)).replace(
-            '_cloze-id_', cloze_id).replace('_content_', cloze_string)
-        return new_html
 
 
 def update_all_enhanced_clozes_in_browser(self, evt=None):
@@ -274,6 +239,7 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
 
 
 def addModel():
+    
     if exists_model():
         return
 
@@ -306,3 +272,4 @@ def addModel():
         file = os.path.join(mw.pm.addonFolder(), folder, file)
         copy(file, mw.col.media.dir())
 addHook("profileLoaded", addModel)
+

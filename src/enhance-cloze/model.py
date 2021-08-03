@@ -30,7 +30,9 @@ enhancedModel = {
         {"name": "Cloze17",       "media": [], "sticky": False, "rtl": False, "ord": 22, "font": "Arial", "size": 10},
         {"name": "Cloze18",       "media": [], "sticky": False, "rtl": False, "ord": 23, "font": "Arial", "size": 10},
         {"name": "Cloze19",       "media": [], "sticky": False, "rtl": False, "ord": 24, "font": "Arial", "size": 10},
-        {"name": "Cloze20",       "media": [], "sticky": False, "rtl": False, "ord": 25, "font": "Arial", "size": 10}],
+        {"name": "Cloze20",       "media": [], "sticky": False, "rtl": False, "ord": 25, "font": "Arial", "size": 10},
+        {"name": "data",          "media": [], "sticky": False, "rtl": False, "ord": 25, "font": "Arial", "size": 10}
+    ],
     "sortf":0,
     "tmpls": [
             {

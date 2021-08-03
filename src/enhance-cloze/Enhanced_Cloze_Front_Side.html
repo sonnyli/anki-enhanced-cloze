@@ -1,48 +1,51 @@
 <div id="card-body">
     <div id="main-section" class="content">
-        <!-- Separation line -->
-        {{cloze:Cloze1}}
-        <!-- Separation line -->
-        {{cloze:Cloze2}}
-        <!-- Separation line -->
-        {{cloze:Cloze3}}
-        <!-- Separation line -->
-        {{cloze:Cloze4}}
-        <!-- Separation line -->
-        {{cloze:Cloze5}}
-        <!-- Separation line -->
-        {{cloze:Cloze6}}
-        <!-- Separation line -->
-        {{cloze:Cloze7}}
-        <!-- Separation line -->
-        {{cloze:Cloze8}}
-        <!-- Separation line -->
-        {{cloze:Cloze9}}
-        <!-- Separation line -->
-        {{cloze:Cloze10}}
-        <!-- Separation line -->
-        {{cloze:Cloze11}}
-        <!-- Separation line -->
-        {{cloze:Cloze12}}
-        <!-- Separation line -->
-        {{cloze:Cloze13}}
-        <!-- Separation line -->
-        {{cloze:Cloze14}}
-        <!-- Separation line -->
-        {{cloze:Cloze15}}
-        <!-- Separation line -->
-        {{cloze:Cloze16}}
-        <!-- Separation line -->
-        {{cloze:Cloze17}}
-        <!-- Separation line -->
-        {{cloze:Cloze18}}
-        <!-- Separation line -->
-        {{cloze:Cloze19}}
-        <!-- Separation line -->
-        {{cloze:Cloze20}}
+        <!-- this element is invisible, the purpose of it is to make Anki generate the needed cards
+        and to pass the information about which cloze is the main one to the card
+        (can be determined by looking at the cloze-id attribute) -->
+        <span id="dummy-clozes" style="display: none;">
+            {{cloze:Cloze1}}
+            {{cloze:Cloze2}}
+            {{cloze:Cloze3}}
+            {{cloze:Cloze4}}
+            {{cloze:Cloze5}}
+            {{cloze:Cloze6}}
+            {{cloze:Cloze7}}
+            {{cloze:Cloze8}}
+            {{cloze:Cloze9}}
+            {{cloze:Cloze10}}
+            {{cloze:Cloze11}}
+            {{cloze:Cloze12}}
+            {{cloze:Cloze13}}
+            {{cloze:Cloze14}}
+            {{cloze:Cloze15}}
+            {{cloze:Cloze16}}
+            {{cloze:Cloze17}}
+            {{cloze:Cloze18}}
+            {{cloze:Cloze19}}
+            {{cloze:Cloze20}}
+        </span>
+        <span id="data" style="display: none;">
+            {{data}}
+        </span>
+        <!-- this element will contain the actual content - the enhanced clozes -->
+        <span id="enhanced-clozes"></span>
     </div>
     <br>
 
+    <span id="content" style="display: none;">{{Content}}</span>
+
+<div id="functional-elements">
+    <div id="show-one-cloze-left"></div>
+    <div id="show-one-cloze-right"></div>
+    <div id="no-more-cloze"></div>
+    <div id="show-all-pseudo-clozes"></div>
+    <div style="display:none">
+        {{type:In-use Clozes}}
+    </div>
+</div>
+
+<div>
     <!-- Separation line -->
     {{#Note}}
     <div id="note-section">
@@ -98,16 +101,6 @@
         </div>
     </div>
     <br> {{/Extra}}
-
-    <div id="functional-elements">
-        <div id="show-one-cloze-left"></div>
-        <div id="show-one-cloze-right"></div>
-        <div id="no-more-cloze"></div>
-        <div id="show-all-pseudo-clozes"></div>
-        <div style="display:none">
-            {{type:In-use Clozes}}
-        </div>
-    </div>
 </div>
 
 <script src="_jquery-3.2.1.min.js"></script>
@@ -115,9 +108,15 @@
 <script src="_jquery.visible.min.js"></script>
 
 <script>
+    var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
+    var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
+
+    document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
+
     var indexOfGenuineClozeToShow = 0;
-    var genuineClozeTotalNumber = $('.genuine-cloze').length;
+    var genuineClozeTotalNumber = genuineClozeIndeces.length
     $(function () {
+
         // INITIALIZE CLOZES
         //      genuine clozes refer to those belong to current card and need to be answered, e.g. { {c2::abc} } on card2
         //      pseudo clozes refer to the opposite, e.g. { {c1::abc} } and { {c3::abc} } on card2
@@ -159,6 +158,20 @@
         })
 
     });
+
+    function prepareEnhancedClozes(genuineClozeIndeces){
+        var result = "";
+        var i = 0
+        // the data variable is set by a script tag in the data field of the note
+        for(var [part, clozeId] of data["parts"]){
+            result += part
+            if(i == data["parts"].length - 1) break
+
+            result += genuineClozeIndeces.indexOf(clozeId) != -1 ? "genuine-cloze" : "pseudo-cloze"
+            i += 1
+        }
+        return result
+    }
 
     function scrollToCloze(elem) {
         $('html, body').animate({
@@ -212,16 +225,12 @@
     }
 
     function toggleCloze(elem, displayOption) {
-        var answer = '',
-            hint = '';
+        var answer = '', hint = '';
         var index = $(elem).attr('index');
-        if ($(elem).hasClass('genuine-cloze')) {
-            answer = $('#genuine-cloze-answer-' + index).html();
-            hint = $('#genuine-cloze-hint-' + index).html();
-        } else {
-            answer = $('#pseudo-cloze-answer-' + index).html();
-            hint = $('#pseudo-cloze-hint-' + index).html();
-        }
+
+        answer = data["answers"][index]
+        hint = data["hints"][index]
+
         hint = '&nbsp;&nbsp;[&nbsp;&nbsp;' + hint + '&nbsp;&nbsp;]&nbsp;&nbsp;';
 
         if (displayOption == 'answer') {
