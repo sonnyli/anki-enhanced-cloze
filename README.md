@@ -1,12 +1,6 @@
 # Enhanced cloze 2.1
 This add-on allows to improve clozes usage. See the [AnkiWeb page](https://ankiweb.net/shared/info/1990296174) for more details. 
 
-## general warning
-For each cloze you add this add-on copies the whole text. So if you paste 1000 words into the 
-first field of an enhanced cloze note and do 20 clozes the note will have ultimately 21000 words.
-If you do this often the size of your database will increase substantially. You can only use 
-Ankiweb if your database (excluding any images which are not in the database) is smaller than 100mb.
-
 ## Known Limitations, Bugs, Todo
 - On Ankidroid 2.9 with Android 10 in 2019-11-27 it doesn't work properly: When you have multiple
   c1s and on Ankidroid you touch the first one to unveil it it immediatly jumps to the answer and
