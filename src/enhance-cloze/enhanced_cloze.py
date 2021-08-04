@@ -32,21 +32,14 @@ def gc(arg, fail=False):
 
 # constants
 MODEL_NAME = "Enhanced Cloze 2.1"
-CONTENT_FIELD_NAMES = ["Content", "# Content"]
+CONTENT_FIELD_NAME = "Content"
+OLD_CONTENT_FIELD_NAME = "# Content" # in a previous verion of the add-on the field was named that way
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 
 
-def generate_enhanced_cloze(note):
 
-    # in newer version of Anki ~2.1.45 when the notetype gets imported the "# " seems to be ignored
-    # when the template with the name already exists, it won't be changed instead the add-on will
-    # work with both version of the notetype (the one with the "# Content" field and the one with
-    # the "Content" field)
-    try:
-        src_content = note[CONTENT_FIELD_NAMES[0]]
-    except KeyError:
-        src_content = note[CONTENT_FIELD_NAMES[1]]
-        
+def generate_enhanced_cloze(note):
+    src_content = note[CONTENT_FIELD_NAME]
 
     # Get ids of in-use clozes
     cloze_start_regex = r"\{\{c\d+::"
@@ -243,6 +236,18 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
 def addModel():
     
     if exists_model():
+        models = mw.col.models
+
+        # update the fields of the model because they were previously different
+        # cant just load the template on every launch because it doesn't work in Anki >= 2.1.45
+
+        model = mw.col.models.byName(MODEL_NAME)
+        if 'data' not in mw.col.models.fieldNames(model):
+            mw.col.models.add_field(model, 'data')
+
+        if OLD_CONTENT_FIELD_NAME in models.fieldNames(model):
+            models.rename_field(model, OLD_CONTENT_FIELD_NAME, CONTENT_FIELD_NAME)
+
         return
 
     if ANKI_VERSION_TUPLE >= (2, 1, 45):
