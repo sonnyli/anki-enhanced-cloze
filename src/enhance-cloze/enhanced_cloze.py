@@ -107,7 +107,7 @@ def prepareData(content):
         part += f'<span class="'
         parts.append((part, int(cloze_id[1:])))
 
-        part = f'" index="{i}" show-state="hint" cloze-id="{cloze_id}">{{{{{cloze_id}::{answer}::{hint}}}}}</span>'
+        part = f'" index="{i}" show-state="hint" cloze-id="{cloze_id}"></span>'
 
         answers.append(answer)
         hints.append(hint)
