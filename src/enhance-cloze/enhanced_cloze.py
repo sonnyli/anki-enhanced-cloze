@@ -78,6 +78,7 @@ def generate_enhanced_cloze(note):
         note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
     return
 
+
 def prepareData(content):
     # create a string that contains data that will be passed to a card
 
@@ -127,7 +128,8 @@ def prepareData(content):
         'parts' : parts,
         'answers' : answers,
         'hints' : hints,
-    }) + "</script>"
+    }).replace('<', '\u003c').replace('-->', '--\>') + "</script>"
+
 
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
