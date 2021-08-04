@@ -35,15 +35,6 @@
 
     <span id="content" style="display: none;">{{Content}}</span>
 
-<div id="functional-elements">
-    <div id="show-one-cloze-left"></div>
-    <div id="show-one-cloze-right"></div>
-    <div id="no-more-cloze"></div>
-    <div id="show-all-pseudo-clozes"></div>
-    <div style="display:none">
-        {{type:In-use Clozes}}
-    </div>
-</div>
 
 <div>
     <!-- Separation line -->
@@ -101,6 +92,19 @@
         </div>
     </div>
     <br> {{/Extra}}
+
+    <div id="functional-elements">
+        <div id="show-one-cloze-left"></div>
+        <div id="show-one-cloze-right"></div>
+        <div id="no-more-cloze"></div>
+        <div id="show-all-pseudo-clozes"></div>
+        <div style="display:none">
+            {{type:In-use Clozes}}
+        </div>
+    </div>
+
+</div>
+
 </div>
 
 <script src="_jquery-3.2.1.min.js"></script>
@@ -115,6 +119,8 @@
 
     var indexOfGenuineClozeToShow = 0;
     var genuineClozeTotalNumber = genuineClozeIndeces.length
+
+
     $(function () {
 
         // INITIALIZE CLOZES
