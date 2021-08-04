@@ -129,14 +129,6 @@ def check_model(model):
     return re.search(MODEL_NAME, model["name"])
 
 
-def exists_model():
-    "Whether the collection contains model Enhanced Cloze 2.1"
-    for model in mw.col.models.all():
-        if check_model(model):
-            return True
-    return False
-
-
 def update_all_enhanced_clozes_in_browser(self, evt=None):
     browser = self
     mw = browser.mw
@@ -233,29 +225,33 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
     gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
 
-def addModel():
+def show_workaround_message():
+    showInfo(
+        'Installing the Enhanced Cloze 2.1 add-on on\nAnki >= 2.1.45 requires some extra steps:\nhttps://ankiweb.net/shared/info/1990296174', 
+        title="Enhanced Cloze 2.1",
+    )
     
-    if exists_model():
-        models = mw.col.models
 
-        # update the fields of the model because they were previously different
-        # cant just load the template on every launch because it doesn't work in Anki >= 2.1.45
+def addModel():
 
-        model = mw.col.models.byName(MODEL_NAME)
-        if 'data' not in mw.col.models.fieldNames(model):
-            mw.col.models.add_field(model, 'data')
+    mm = mw.col.models
+    model = mm.byName(MODEL_NAME)
 
-        if OLD_CONTENT_FIELD_NAME in models.fieldNames(model):
-            models.rename_field(model, OLD_CONTENT_FIELD_NAME, CONTENT_FIELD_NAME)
+    # mm.rem(model)
 
+    if model and set([x['name'] for x in enhancedModel['flds']]) == set(mm.fieldNames(model)):
         return
 
     if ANKI_VERSION_TUPLE >= (2, 1, 45):
-        showInfo(
-            'Installing the Enhanced Cloze 2.1 add-on on\nAnki >= 2.1.45 requires some extra steps:\nhttps://ankiweb.net/shared/info/1990296174', 
-            title="Enhanced Cloze 2.1",
-        )
+        show_workaround_message()
         return
+
+    # the content field had a different name in an older version of the add-on  
+    # if model and OLD_CONTENT_FIELD_NAME in mm.fieldNames(model):
+    #     mm._remove_from_cache(model['id'])
+    #     mm.rename_field(model, mm.fieldMap(model)[OLD_CONTENT_FIELD_NAME][1], CONTENT_FIELD_NAME)
+        # mm.save(model)
+
 
     addon_path = os.path.dirname(__file__)
     front = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
@@ -267,7 +263,8 @@ def addModel():
         enhancedModel["css"] = f.read()
     with open(back) as f:
         enhancedModel["tmpls"][0]["afmt"] = f.read()
-    mw.col.models.add(enhancedModel)
+    mm.add(enhancedModel)
+
     jsToCopy = ["_Autolinker.min.js",
                 "_jquery-3.2.1.min.js",
                 "_jquery.hotkeys.js",
