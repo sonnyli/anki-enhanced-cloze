@@ -37,10 +37,11 @@
     </div>
     <br>
     <br>
+    <hr>
     <br>
+    <p class="" style="margin: 5.5px;"></p>
 
     <span id="content" style="display: none;">{{Content}}</span>
-
 
 <div>
     <!-- Separation line -->
@@ -53,7 +54,9 @@
             {{Note}}
         </div>
     </div>
-    <br> {{/Note}}
+    <br> 
+    <p class="" style="margin: 5.5px;"></p>
+    {{/Note}}
 
     {{#Mnemonics}}
     <div id="mnemonics-section">
@@ -64,7 +67,9 @@
             {{Mnemonics}}
         </div>
     </div>
-    <br> {{/Mnemonics}}
+    <br> 
+    <p class="" style="margin: 5.5px;"></p>
+    {{/Mnemonics}}
 
     {{#Extra}}
     <div id="extra-section">
@@ -75,7 +80,9 @@
             {{Extra}}
         </div>
     </div>
-    <br> {{/Extra}}
+    <br> 
+    <p class="" style="margin: 5.5px;"></p>
+    {{/Extra}}
 
     <div id="info-section">
         <div id="info-header" class="header header-blue" onclick="showNextElement(this)">
@@ -84,14 +91,14 @@
 
         <div id="info" class="content" style="display:none">
             <div>
-                Deck: {{Deck}}
+                <b>Deck</b>: <br><i>{{Deck}}</i>
             </div>
 
             <br>
             <!-- Separation line -->
             {{#Tags}}
             <div id="tags">
-                Tags: {{Tags}}
+                <b>Tags</b>: <br><i>{{Tags}}</i>
             </div>
             {{/Tags}}
         </div>
