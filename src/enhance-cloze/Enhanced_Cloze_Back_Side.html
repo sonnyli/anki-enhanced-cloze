@@ -1,34 +1,11 @@
 
 {{FrontSide}}
 
-<span id="dummy-clozes" style="display: none;">
-    {{cloze:Cloze1}}
-    {{cloze:Cloze2}}
-    {{cloze:Cloze3}}
-    {{cloze:Cloze4}}
-    {{cloze:Cloze5}}
-    {{cloze:Cloze6}}
-    {{cloze:Cloze7}}
-    {{cloze:Cloze8}}
-    {{cloze:Cloze9}}
-    {{cloze:Cloze10}}
-    {{cloze:Cloze11}}
-    {{cloze:Cloze12}}
-    {{cloze:Cloze13}}
-    {{cloze:Cloze14}}
-    {{cloze:Cloze15}}
-    {{cloze:Cloze16}}
-    {{cloze:Cloze17}}
-    {{cloze:Cloze18}}
-    {{cloze:Cloze19}}
-    {{cloze:Cloze20}}
-</span>
-
 <script>
     $(function () {
         $('#note').show(0)
         $('#info').show(0)
-        $('#source').show(0)
+        $('#mnemonics').show(0)
         $('#extra').show(0)
         $('.genuine-cloze').each(function (index, elem) {
             toggleCloze(elem, 'answer')

@@ -30,7 +30,9 @@
         </span>
         <!-- this element will contain the actual content - the enhanced clozes -->
         <span id="enhanced-clozes">
-
+            <span id="enhanced-clozes">
+                This is an example <span class="genuine-cloze" index="0" show-state="hint"cloze-id="c1">&nbsp;&nbsp;[&nbsp;&nbsp;&nbsp;&nbsp;]&nbsp;&nbsp;</span>
+            </span>
         </span>
     </div>
     <br>
@@ -115,15 +117,17 @@
 <script src="_jquery.visible.min.js"></script>
 
 <script>
-    var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
-    var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
+    if (document.getElementById("data").querySelectorAll("script").length != 0) {
+        var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
+        var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
 
-    document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
+        document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
 
-    var indexOfGenuineClozeToShow = 0;
-    var genuineClozeTotalNumber = genuineClozeIndeces.length
-
-    // for the preview in the card window
+        var indexOfGenuineClozeToShow = 0;
+        var genuineClozeTotalNumber = genuineClozeIndeces.length
+    } else {
+        var data = {"answers": ["cloze"], "hints": [""]} 
+    }
 
     $(function () {
 
