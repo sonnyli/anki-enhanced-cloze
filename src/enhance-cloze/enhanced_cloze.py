@@ -181,7 +181,6 @@ def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
                 self.mw.requireReset()
         callback()
     return _old(self, newCallback, keepFocus)
-Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 
 
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
