@@ -13,7 +13,7 @@ import os
 import re
 from shutil import copy
 
-from anki import version as anki_version
+from anki import notes, version as anki_version
 from anki.hooks import addHook, wrap
 from aqt import mw
 from aqt.editor import Editor
@@ -30,34 +30,29 @@ def gc(arg, fail=False):
     return fail
 
 
-# constants
 MODEL_NAME = "Enhanced Cloze 2.1"
 CONTENT_FIELD_NAME = "Content"
 OLD_CONTENT_FIELD_NAME = "# Content" # in a previous verion of the add-on the field was named that way
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 
 
-
 def generate_enhanced_cloze(note):
     src_content = note[CONTENT_FIELD_NAME]
 
-    # Get ids of in-use clozes
-    cloze_start_regex = r"\{\{c\d+::"
-    cloze_start_matches = re.findall(cloze_start_regex, src_content)
-
     note["data"] = prepareData(src_content)
 
+    in_use_clozes_numbers = in_use_clozes(src_content)
+
     # if no clozes are found, empty Cloze1 ~ Cloze20 and fill in Cloze99
-    if not cloze_start_matches:
+    if not in_use_clozes_numbers:
         for i_cloze_field_number in range(1, 20 + 1):
             dest_field_name = "Cloze%s" % i_cloze_field_number
             note[dest_field_name] = ""
 
         note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
-        note["Cloze1"] = src_content
+        note["Cloze99"] = '{{c1::.}}'
         return
 
-    in_use_clozes_numbers = sorted([int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
     note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
 
     # Fill in content in in-use cloze fields and empty content in not-in-use fields
@@ -70,6 +65,12 @@ def generate_enhanced_cloze(note):
 
         note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
     return
+
+
+def in_use_clozes(content):
+    cloze_start_regex = r"\{\{c\d+::"
+    cloze_start_matches = re.findall(cloze_start_regex, content)
+    return sorted([int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
 
 
 def prepareData(content):
@@ -124,11 +125,7 @@ def prepareData(content):
     }).replace('<', '\u003c').replace('-->', '--\>') + "</script>"
 
 
-def check_model(model):
-    """Whether this model is Enhanced cloze version 2.1"""
-    return re.search(MODEL_NAME, model["name"])
-
-
+# menu entry for updating clozes in browser
 def update_all_enhanced_clozes_in_browser(self, evt=None):
     browser = self
     mw = browser.mw
@@ -167,24 +164,23 @@ def setup_menu(self):
 addHook("browser.setupMenus", setup_menu)
 
 
-# copied from "Cloze (Hide All)" by phu54321 from
-# https://ankiweb.net/shared/info/1709973686
-def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
-    """Automatically generate overlapping clozes before adding cards"""
-    def newCallback():
-        # self.note may be None when editor isn't yet initialized.
-        # ex: entering browser
-        if self.note and self.note.model()["name"] == MODEL_NAME:
-            generate_enhanced_cloze(self.note)
-            if not self.addMode:
-                self.note.flush()
-                self.mw.requireReset()
-        callback()
-    return _old(self, newCallback, keepFocus)
-
-
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
+
+# hook the processing of the note
 if ANKI_VERSION_TUPLE < (2, 1, 21):
+    # copied from "Cloze (Hide All)" by phu54321 from
+    # https://ankiweb.net/shared/info/1709973686
+    def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
+        def newCallback():
+            # self.note may be None when editor isn't yet initialized.
+            # ex: entering browser
+            if self.note and self.note.model()["name"] == MODEL_NAME:
+                generate_enhanced_cloze(self.note)
+                if not self.addMode:
+                    self.note.flush()
+                    self.mw.requireReset()
+            callback()
+        return _old(self, newCallback, keepFocus)
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     # downside: Anki will warn about missing clozes
@@ -200,6 +196,8 @@ else:
             generate_enhanced_cloze(note)
     gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
 
+
+# prevent warnings about clozes
 if ANKI_VERSION_TUPLE >= (2, 1, 45):
     from anki.notes import NoteFieldsCheckResult
 
@@ -224,12 +222,30 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
     gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
 
+    # the warning about no clozes in the field will still show up in version lower 2.1.45
+    original_fields_check = notes.Note.fields_check
+    def new_fields_check(self):
+        if mw.col.models.get(self.mid)['name'] != MODEL_NAME:
+            return
+
+        result = original_fields_check(self)
+        if result == NoteFieldsCheckResult.MISSING_CLOZE:
+            return None
+        return result
+    notes.Note.fields_check = new_fields_check
+
+
 def show_workaround_message():
     showInfo(
         'Installing the Enhanced Cloze 2.1 add-on on\nAnki >= 2.1.45 requires some extra steps:\nhttps://ankiweb.net/shared/info/1990296174', 
         title="Enhanced Cloze 2.1",
     )
     
+
+def check_model(model):
+    """Whether this model is Enhanced cloze version 2.1"""
+    return re.search(MODEL_NAME, model["name"])
+
 
 def addModel():
 
