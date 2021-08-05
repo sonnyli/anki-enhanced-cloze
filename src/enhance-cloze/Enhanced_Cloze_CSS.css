@@ -1,5 +1,6 @@
 #card-body {
-    font: 17px/1.5em 'Arial', 'Helvetica', sans-serif;
+    font: 17px/1.58em 'Avenir Next';
+    text-align: justify; 
     margin-top: 60px;
     margin-bottom: 60px;
 }
@@ -15,23 +16,23 @@
 }
 
 .header-red {
-    border-left: 4px solid #db4437;
-    color: #db4437;
+    border-left: 4px solid #ff6e6e;
+    color: #ff6e6e;
 }
 
 .header-green {
-    border-left: 4px solid #0f9d58;
-    color: #0f9d58;
+    border-left: 4px solid #69f0a1;
+    color: #69f0a1;
 }
 
 .header-blue {
-    border-left: 4px solid #4285f4;
-    color: #4285f4;
+    border-left: 4px solid #69c3f0;
+    color: #69c3f0;
 }
 
 .header-yellow {
-    border-left: 4px solid #f4b400;
-    color: #f4b400;
+    border-left: 4px solid #f0cc69;
+    color: #f0cc69;
 }
 
 .genuine-cloze {
@@ -41,7 +42,7 @@
 
 .genuine-cloze[show-state="hint"] {
     border-bottom: 2px solid #db4437;
-    background-color: #ffd6d4;
+    background-color: #ff829f;
 }
 
 .pseudo-cloze {
@@ -51,7 +52,7 @@
 
 .pseudo-cloze[show-state="hint"] {
     border-bottom: 2px solid #4285f4;
-    background-color: #dce8ff;
+    background-color: #a3c3ff;
 }
 
 #show-one-cloze-left,
@@ -95,8 +96,8 @@ i {
 }
 
 u {
-    background-color: #dbffed;
-    border-bottom: 2px solid #0f9d58;
+    color: #fc5a8d;
+    border-bottom: 2px solid #fc5a8d;
     text-decoration: none;
 }
 
@@ -133,7 +134,7 @@ th {
 }
 
 hr {
-    border-top: 2px solid #aaaaaa;
+    border-top: 2.5px solid #aaaaaa;
     width: 100%;
     margin: 0;
     padding: 0;

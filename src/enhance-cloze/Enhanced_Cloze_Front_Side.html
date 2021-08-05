@@ -29,8 +29,12 @@
             {{data}}
         </span>
         <!-- this element will contain the actual content - the enhanced clozes -->
-        <span id="enhanced-clozes"></span>
+        <span id="enhanced-clozes">
+
+        </span>
     </div>
+    <br>
+    <br>
     <br>
 
     <span id="content" style="display: none;">{{Content}}</span>
@@ -49,39 +53,17 @@
     </div>
     <br> {{/Note}}
 
-    <div id="info-section">
-        <div id="info-header" class="header header-blue" onclick="showNextElement(this)">
-            Information
+    {{#Mnemonics}}
+    <div id="mnemonics-section">
+        <div id="mnemonics-header" class="header header-green" onclick="showNextElement(this)">
+            Mnemonics
         </div>
-
-        <div id="info" class="content" style="display:none">
-            <div>
-                Deck: {{Deck}}
-            </div>
-
-            <!-- Separation line -->
-            {{#Tags}}
-            <div id="tags">
-                Tags: {{Tags}}
-            </div>
-            {{/Tags}}
+        <div id="mnemonics" class="content" style="display:none">
+            {{Mnemonics}}
         </div>
     </div>
-    <br>
+    <br> {{/Mnemonics}}
 
-    <!-- Separation line -->
-    {{#Source}}
-    <div id="source-section">
-        <div id="source-header" class="header header-green" onclick="showNextElement(this)">
-            Source
-        </div>
-        <div id="source" class="content" style="display:none">
-            {{Source}}
-        </div>
-    </div>
-    <br> {{/Source}}
-
-    <!-- Separation line -->
     {{#Extra}}
     <div id="extra-section">
         <div id="extra-header" class="header header-yellow" onclick="showNextElement(this)">
@@ -92,6 +74,27 @@
         </div>
     </div>
     <br> {{/Extra}}
+
+    <div id="info-section">
+        <div id="info-header" class="header header-blue" onclick="showNextElement(this)">
+            Information
+        </div>
+
+        <div id="info" class="content" style="display:none">
+            <div>
+                Deck: {{Deck}}
+            </div>
+
+            <br>
+            <!-- Separation line -->
+            {{#Tags}}
+            <div id="tags">
+                Tags: {{Tags}}
+            </div>
+            {{/Tags}}
+        </div>
+    </div>
+    <br>
 
     <div id="functional-elements">
         <div id="show-one-cloze-left"></div>
@@ -120,6 +123,7 @@
     var indexOfGenuineClozeToShow = 0;
     var genuineClozeTotalNumber = genuineClozeIndeces.length
 
+    // for the preview in the card window
 
     $(function () {
 
@@ -129,12 +133,6 @@
         $('.genuine-cloze, .pseudo-cloze').each(function (index, elem) {
             toggleCloze(elem, 'hint')
         });
-
-        // SHORTEN TAGS
-        //      leaving only the last part if hierarchical tags are used, i.e. tag1::tag2::tag3 -> tag3
-        // $('#tags').each(function (index, elem) {
-        //     $(elem).text($(elem).text().replace(/[^:\s]+::/g, ''));
-        // });
 
         // SCROLL TO FIRST CLOZE
         if (genuineClozeTotalNumber) {
@@ -168,6 +166,7 @@
     function prepareEnhancedClozes(genuineClozeIndeces){
         var result = "";
         var i = 0
+        
         // the data variable is set by a script tag in the data field of the note
         for(var [part, clozeId] of data["parts"]){
             result += part
