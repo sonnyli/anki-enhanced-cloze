@@ -18,7 +18,7 @@ from anki.hooks import addHook, wrap
 from aqt import mw
 from aqt.editor import Editor
 from aqt.qt import *
-from aqt.utils import showInfo, tr
+from aqt.utils import tr
 
 from .model import enhancedModel
 
@@ -30,9 +30,8 @@ def gc(arg, fail=False):
     return fail
 
 
-MODEL_NAME = "Enhanced Cloze 2.1"
+MODEL_NAME = "Enhanced Cloze 2.1 v2"
 CONTENT_FIELD_NAME = "Content"
-OLD_CONTENT_FIELD_NAME = "# Content" # in a previous verion of the add-on the field was named that way
 IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 
 
@@ -157,8 +156,8 @@ def setup_menu(self):
     browser = self
     menu = browser.form.menuEdit
     menu.addSeparator()
-    a = menu.addAction('Update Enhanced Clozes')
-    a.setShortcut(QKeySequence(gc("update enhanced cloze shortcut")))
+    a = menu.addAction('Update Enhanced Clozes v2')
+    a.setShortcut(QKeySequence(gc("update enhanced cloze v2 shortcut")))
     a.triggered.connect(
         lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
 addHook("browser.setupMenus", setup_menu)
@@ -235,38 +234,17 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
     notes.Note.fields_check = new_fields_check
 
 
-def show_workaround_message():
-    showInfo(
-        'Installing the Enhanced Cloze 2.1 add-on on\nAnki >= 2.1.45 requires some extra steps:\nhttps://ankiweb.net/shared/info/1990296174', 
-        title="Enhanced Cloze 2.1",
-    )
-    
-
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
     return re.search(MODEL_NAME, model["name"])
 
 
 def addModel():
-
     mm = mw.col.models
     model = mm.byName(MODEL_NAME)
 
-    # mm.rem(model)
-
-    if model and set([x['name'] for x in enhancedModel['flds']]) == set(mm.fieldNames(model)):
+    if model:
         return
-
-    if ANKI_VERSION_TUPLE >= (2, 1, 45):
-        show_workaround_message()
-        return
-
-    # the content field had a different name in an older version of the add-on  
-    # if model and OLD_CONTENT_FIELD_NAME in mm.fieldNames(model):
-    #     mm._remove_from_cache(model['id'])
-    #     mm.rename_field(model, mm.fieldMap(model)[OLD_CONTENT_FIELD_NAME][1], CONTENT_FIELD_NAME)
-        # mm.save(model)
-
 
     addon_path = os.path.dirname(__file__)
     front = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")

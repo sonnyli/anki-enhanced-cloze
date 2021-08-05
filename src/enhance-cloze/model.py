@@ -1,13 +1,13 @@
 enhancedModel = {
     "vers": [],
-    "name": "Enhanced Cloze 2.1",
+    "name": "Enhanced Cloze 2.1 v2",
     "tags": [],
-    "did": 1511491712850,
+    "did": 1,
     "usn": -1,
     "flds": [
-        {"name": "Content",     "media": [], "sticky": False, "rtl": False, "ord": 0,  "font": "Arial", "size": 20},
+        {"name": "Content",       "media": [], "sticky": False, "rtl": False, "ord": 0,  "font": "Arial", "size": 20},
         {"name": "Note",          "media": [], "sticky": False, "rtl": False, "ord": 1,  "font": "Arial", "size": 20},
-        {"name": "Source",        "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
+        {"name": "Mnemonics",        "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
         {"name": "Extra",         "media": [], "sticky": False, "rtl": False, "ord": 3,  "font": "Arial", "size": 20},
         {"name": "In-use Clozes", "media": [], "sticky": False, "rtl": False, "ord": 4,  "font": "Arial", "size": 10},
         {"name": "Cloze99",       "media": [], "sticky": False, "rtl": False, "ord": 5,  "font": "Arial", "size": 10},
@@ -31,12 +31,12 @@ enhancedModel = {
         {"name": "Cloze18",       "media": [], "sticky": False, "rtl": False, "ord": 23, "font": "Arial", "size": 10},
         {"name": "Cloze19",       "media": [], "sticky": False, "rtl": False, "ord": 24, "font": "Arial", "size": 10},
         {"name": "Cloze20",       "media": [], "sticky": False, "rtl": False, "ord": 25, "font": "Arial", "size": 10},
-        {"name": "data",          "media": [], "sticky": False, "rtl": False, "ord": 25, "font": "Arial", "size": 10}
+        {"name": "data",          "media": [], "sticky": False, "rtl": False, "ord": 26, "font": "Arial", "size": 10}
     ],
     "sortf":0,
     "tmpls": [
             {
-            "name": "Cloze",
+            "name": "Enhanced Cloze",
             "qfmt": "",
             "did": None,
             "bafmt": "",
@@ -48,7 +48,7 @@ enhancedModel = {
     "mod": 1560146886,
     "latexPost": "\\end{document}",
     "type": 1,
-    "id": 1510132306224,
+    "id": 0,
     "css": "",
  "latexPre": """\\documentclass[12pt]{article}
 \\special{papersize=3in,5in}
