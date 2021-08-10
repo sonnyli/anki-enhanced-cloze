@@ -13,9 +13,10 @@ import os
 import re
 from shutil import copy
 
-from anki import notes, version as anki_version
+from anki import notes
+from anki import version as anki_version
 from anki.hooks import addHook, wrap
-from aqt import mw
+from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *
 from aqt.utils import tr
@@ -182,19 +183,12 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
         return _old(self, newCallback, keepFocus)
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
-    # downside: Anki will warn about missing clozes
-    # from anki import hooks
-    # def maybe_generate_enhanced_cloze(note):
-    #     if note and note.model()["name"] == MODEL_NAME:
-    #         generate_enhanced_cloze(note)
-    # hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
-    from aqt import gui_hooks
+    from anki import hooks
 
-    def maybe_generate_enhanced_cloze(changed, note, fieldindex):
+    def maybe_generate_enhanced_cloze(note):
         if note and note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
-    gui_hooks.editor_did_unfocus_field.append(maybe_generate_enhanced_cloze)
-
+    hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
 # prevent warnings about clozes
 if ANKI_VERSION_TUPLE >= (2, 1, 45):
