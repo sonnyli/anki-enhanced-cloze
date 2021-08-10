@@ -147,7 +147,7 @@ def update_all_enhanced_cloze(self):
     nids = mw.col.findNotes(f"\"note:{MODEL_NAME}\"")
     for nid in nids:
         note = mw.col.getNote(nid)
-        if not check_model(note.model()):
+        if not check_model(note.note_type()):
             continue
         generate_enhanced_cloze(note)
         note.flush()
@@ -174,7 +174,7 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
         def newCallback():
             # self.note may be None when editor isn't yet initialized.
             # ex: entering browser
-            if self.note and self.note.model()["name"] == MODEL_NAME:
+            if self.note and self.note.note_type()["name"] == MODEL_NAME:
                 generate_enhanced_cloze(self.note)
                 if not self.addMode:
                     self.note.flush()
@@ -186,7 +186,7 @@ else:
     from anki import hooks
 
     def maybe_generate_enhanced_cloze(note):
-        if note and note.model()["name"] == MODEL_NAME:
+        if note and note.note_type()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
     hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
@@ -235,7 +235,7 @@ def check_model(model):
 
 def addModel():
     mm = mw.col.models
-    model = mm.byName(MODEL_NAME)
+    model = mm.by_name(MODEL_NAME)
 
     addon_path = os.path.dirname(__file__)
     front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
