@@ -237,18 +237,36 @@ def addModel():
     mm = mw.col.models
     model = mm.byName(MODEL_NAME)
 
+    addon_path = os.path.dirname(__file__)
+    front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
+    css_path = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
+    back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
+
     if model:
+        model = mm.by_name(MODEL_NAME)
+
+        # just replace the script part of the front template, dont change other things
+        # this way changes made by the user to the styling are not overwritten
+        # note that there other script tags in the template but they dont match the regex
+        # because they have a src attribute
+
+        # everything below the jquery import gets replaced
+        script_re = '<script src="_jquery-3.2.1.min.js"></script>[\w\W]+$'
+        with open(front_path) as f:
+            front = f.read()
+        script = re.search(script_re, front).group(0)
+
+        cur_front = model["tmpls"][0]["qfmt"]
+        model["tmpls"][0]["qfmt"] = re.sub(script_re, script, cur_front)
+         
+        mm.update(model)
         return
 
-    addon_path = os.path.dirname(__file__)
-    front = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
-    css = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
-    back = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
-    with open(front) as f:
+    with open(front_path) as f:
         enhancedModel["tmpls"][0]["qfmt"] = f.read()
-    with open(css) as f:
+    with open(css_path) as f:
         enhancedModel["css"] = f.read()
-    with open(back) as f:
+    with open(back_path) as f:
         enhancedModel["tmpls"][0]["afmt"] = f.read()
     mm.add(enhancedModel)
 
