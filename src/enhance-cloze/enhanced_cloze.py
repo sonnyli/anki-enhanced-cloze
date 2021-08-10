@@ -144,7 +144,7 @@ def update_all_enhanced_clozes_in_browser(self, evt=None):
 
 def update_all_enhanced_cloze(self):
     mw = self.mw
-    nids = mw.col.findNotes("*")
+    nids = mw.col.findNotes(f"\"note:{MODEL_NAME}\"")
     for nid in nids:
         note = mw.col.getNote(nid)
         if not check_model(note.model()):
