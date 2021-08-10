@@ -247,6 +247,16 @@
         answer = data["answers"][index]
         hint = data["hints"][index]
 
+        if(answer.startsWith('#')){
+            answer = answer.slice(1)
+
+            if($(elem).attr('class') == 'pseudo-cloze'){
+                $(elem).attr('show-state', 'answer');
+                $(elem).html(answer);
+                return
+            } 
+        }
+
         hint = '&nbsp;&nbsp;[&nbsp;&nbsp;' + hint + '&nbsp;&nbsp;]&nbsp;&nbsp;';
 
         if (displayOption == 'answer') {
