@@ -131,8 +131,7 @@
 
         document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
 
-        var indexOfGenuineClozeToShow = 0;
-        var genuineClozeTotalNumber = genuineClozeIndeces.length
+        var curShowIdx = 0;
     } else {
         var data = {"answers": ["cloze"], "hints": [""]} 
     }
@@ -147,15 +146,15 @@
         });
 
         // SCROLL TO FIRST CLOZE
-        if (genuineClozeTotalNumber) {
+        if ($('.genuine-cloze').length != 0) {
             scrollToCloze($('.genuine-cloze').first().get(0));
         }
 
         $(document).keyup(function (event) {
-            if (event.which == 73 || event.which == 105){//i
+            if (event.which == 73){
                 showOneCloze();
             }
-            if (event.which == 188){ //,
+            if (event.which == 188){
                 showAllPseudoClozes();
             }
         })
@@ -197,42 +196,33 @@
     }
 
     function showOneCloze() {
-        //alert("indexOfGenuineClozeToShow is "+indexOfGenuineClozeToShow+" while genuineClozeTotalNumber is "+genuineClozeTotalNumber );
-        if (indexOfGenuineClozeToShow >= genuineClozeTotalNumber) {
+        gClozeExists = (index) => $('.genuine-cloze[index=' + index + ']').length != 0
+        pClozeExists = (index) => $('.pseudo-cloze[index=' + index + ']').length != 0
+           
+        while(pClozeExists(curShowIdx)){
+                curShowIdx += 1
+        }
+        if(!gClozeExists(curShowIdx)) {
             $('#no-more-cloze').animate({
                 display: "toggle",
             }, 500);
-        } else {
-            //alert("Thus there remains genuine cloze");
-            $('.genuine-cloze[index=' + indexOfGenuineClozeToShow + ']').each(function (index, elem) {
-                //alert("We loop over index"+index);
-                len = $(elem).parents('#note:hidden').length
-                //alert("$(elem).parents('#note:hidden').length is "+len);
-                if (len) {
-                    //alert("Thus show");
-                    $("#note").show(0);
+            return
+        } 
+
+        $('.genuine-cloze[index=' + curShowIdx + ']').each(function (index, elem) {
+            if (!$(elem).is(":visible")) {
+                scrollToCloze(elem);
+            } else {
+                toggleCloze(elem, 'answer');
+                if (!$(elem).is(":visible")) {
+                    scrollToCloze(elem);
                 } else {
-                    //alert("Thus don't show");
-                    if (!$(elem).is(":visible")) {
-                        //alert("Elem is not visible");
-                        scrollToCloze(elem);
-                    } else {
-                        //alert("Elem is visible");
-                        toggleCloze(elem, 'answer');
-                        if (!$(elem).is(":visible")) {
-                            //alert("Elem is not visible (second time)");
-                            scrollToCloze(elem);
-                        } else {
-                            //alert("Elem is visible (second time)");
-                        }
-                        $(elem).hide(0);
-                        $(elem).fadeIn(500);
-                        indexOfGenuineClozeToShow++;
-                    }
                 }
-            })
-        }
-        //alert("");
+                $(elem).hide(0);
+                $(elem).fadeIn(500);
+                curShowIdx++;
+            }
+        })
     }
 
     function showAllPseudoClozes() {
