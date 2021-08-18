@@ -7,7 +7,7 @@ enhancedModel = {
     "flds": [
         {"name": "Content",       "media": [], "sticky": False, "rtl": False, "ord": 0,  "font": "Arial", "size": 20},
         {"name": "Note",          "media": [], "sticky": False, "rtl": False, "ord": 1,  "font": "Arial", "size": 20},
-        {"name": "Mnemonics",        "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
+        {"name": "Mnemonics",     "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
         {"name": "Extra",         "media": [], "sticky": False, "rtl": False, "ord": 3,  "font": "Arial", "size": 20},
         {"name": "In-use Clozes", "media": [], "sticky": False, "rtl": False, "ord": 4,  "font": "Arial", "size": 10},
         {"name": "Cloze99",       "media": [], "sticky": False, "rtl": False, "ord": 5,  "font": "Arial", "size": 10},
