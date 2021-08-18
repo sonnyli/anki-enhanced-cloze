@@ -125,15 +125,34 @@
 <!-- Do not change this part of the template! Changes will be overwritten by the add-on -->
 
 <script>
-    if (data['answers'] && data['answers'].length != 0) {
-        var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
-        var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
+    const equals = (a, b) => {
+        if (a === b) return true;
+        if (a instanceof Date && b instanceof Date)
+            return a.getTime() === b.getTime();
+        if (!a || !b || (typeof a !== 'object' && typeof b !== 'object'))
+            return a === b;
+        if (a.prototype !== b.prototype) return false;
+        let keys = Object.keys(a);
+        if (keys.length !== Object.keys(b).length) return false;
+        return keys.every(k => equals(a[k], b[k]));
+    };
 
-        document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
+    var clozesExist = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")[0]
+    if (clozesExist) {
+        if (!equals(data['parts'], [["", null]])){
+            // normal mode
+            var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
+            var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
 
-        var curShowIdx = 0;
+            document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
+            var curShowIdx = 0;
+        } else {
+            // card designer mode
+            var data = {"answers": ["cloze"], "hints": [""]} 
+        }
     } else {
-        var data = {"answers": ["cloze"], "hints": [""]} 
+        // no cloze mode
+        document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes()
     }
 
     $(function () {
