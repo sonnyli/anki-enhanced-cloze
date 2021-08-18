@@ -1,3 +1,5 @@
+*code-workspace
+
 *.pyc
 __pycache__/ 
 src/*/__pycache__/
