@@ -43,28 +43,27 @@ def generate_enhanced_cloze(note):
 
     in_use_clozes_numbers = in_use_clozes(src_content)
 
-    # if no clozes are found, empty Cloze1 ~ Cloze20 and fill in Cloze99
     if not in_use_clozes_numbers:
+        # if no clozes are found, empty Cloze1 ~ Cloze20 and fill in Cloze99
+        note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
+        note["Cloze99"] = '{{c1::.}}'
+
         for i_cloze_field_number in range(1, 20 + 1):
             dest_field_name = "Cloze%s" % i_cloze_field_number
             note[dest_field_name] = ""
+    else:
+        # Fill in content in in-use cloze fields and empty content in not-in-use fields
+        note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
+        note["Cloze99"] = ''
 
-        note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
-        note["Cloze99"] = '{{c1::.}}'
-        return
+        for current_cloze_field_number in range(1, 20 + 1):
+            dest_field_name = "Cloze%s" % current_cloze_field_number
 
-    note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
+            if not current_cloze_field_number in in_use_clozes_numbers:
+                note[dest_field_name] = ''
+                continue
 
-    # Fill in content in in-use cloze fields and empty content in not-in-use fields
-    for current_cloze_field_number in range(1, 20 + 1):
-        dest_field_name = "Cloze%s" % current_cloze_field_number
-
-        if not current_cloze_field_number in in_use_clozes_numbers:
-            note[dest_field_name] = ''
-            continue
-
-        note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
-    return
+            note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
 
 
 def in_use_clozes(content):
@@ -147,7 +146,7 @@ def update_all_enhanced_cloze(self):
     nids = mw.col.findNotes(f"\"note:{MODEL_NAME}\"")
     for nid in nids:
         note = mw.col.getNote(nid)
-        if not check_model(note.note_type()):
+        if not check_model(note.model()):
             continue
         generate_enhanced_cloze(note)
         note.flush()
@@ -174,7 +173,7 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
         def newCallback():
             # self.note may be None when editor isn't yet initialized.
             # ex: entering browser
-            if self.note and self.note.note_type()["name"] == MODEL_NAME:
+            if self.note and self.note.model()["name"] == MODEL_NAME:
                 generate_enhanced_cloze(self.note)
                 if not self.addMode:
                     self.note.flush()
@@ -184,19 +183,34 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     from anki import hooks
-
     def maybe_generate_enhanced_cloze(note):
-        if note and note.note_type()["name"] == MODEL_NAME:
+        if note and note.model()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
     hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
+# if ANKI_VERSION_TUPLE == (2, 1, 26)
+
 # prevent warnings about clozes
-if ANKI_VERSION_TUPLE >= (2, 1, 45):
+if ANKI_VERSION_TUPLE == (2, 1, 26):
+    from anki.models import ModelManager
+    original_availableClozeOrds = ModelManager._availClozeOrds
+    def new_availClozeOrds(self, m, flds: str, allowEmpty: bool = True):
+        if m['name'] == MODEL_NAME:
+            return [0] # the exact value is not important, it has to be an non-empty array
+    ModelManager._availClozeOrds = new_availClozeOrds
+elif ANKI_VERSION_TUPLE < (2, 1, 45):
+    from anki.notes import Note
+    original_cloze_numbers_in_fields = Note.cloze_numbers_in_fields
+    def new_cloze_numbers_in_fields(self):
+        if self.model()['name'] == MODEL_NAME:
+            return [0] # the exact value is not important, it has to be an non-empty array
+    Note.cloze_numbers_in_fields = new_cloze_numbers_in_fields
+else:
     from anki.notes import NoteFieldsCheckResult
 
     original_update_duplicate_display = Editor._update_duplicate_display
     def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
-        if self.note._note_type['name'] == MODEL_NAME:
+        if self.note._model['name'] == MODEL_NAME:
             if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
                 result = NoteFieldsCheckResult.NORMAL
             if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
@@ -206,7 +220,7 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
 
 
     def ignore_some_cloze_problems_for_enh_clozes(problem, note):
-        if note._note_type['name']  == MODEL_NAME:
+        if note._model['name']  == MODEL_NAME:
             if problem == tr.adding_cloze_outside_cloze_notetype():
                 return None
             elif problem == tr.adding_cloze_outside_cloze_field():
@@ -227,7 +241,6 @@ if ANKI_VERSION_TUPLE >= (2, 1, 45):
         return result
     notes.Note.fields_check = new_fields_check
 
-
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
     return re.search(MODEL_NAME, model["name"])
@@ -235,7 +248,7 @@ def check_model(model):
 
 def addModel():
     mm = mw.col.models
-    model = mm.by_name(MODEL_NAME)
+    model = mm.byName(MODEL_NAME)
 
     addon_path = os.path.dirname(__file__)
     front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
@@ -243,7 +256,7 @@ def addModel():
     back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
 
     if model:
-        model = mm.by_name(MODEL_NAME)
+        model = mm.byName(MODEL_NAME)
 
         # just replace the script part of the front template, dont change other things
         # this way changes made by the user to the styling are not overwritten
