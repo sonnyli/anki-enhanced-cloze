@@ -125,7 +125,7 @@
 <!-- Do not change this part of the template! Changes will be overwritten by the add-on -->
 
 <script>
-    const equals = (a, b) => {
+    equals = (a, b) => {
         if (a === b) return true;
         if (a instanceof Date && b instanceof Date)
             return a.getTime() === b.getTime();
@@ -140,6 +140,7 @@
     var clozesExist = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")[0]
     if (clozesExist) {
         if (!equals(data['parts'], [["", null]])){
+            console.log('normal mode')
             // normal mode
             var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
             var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
@@ -147,11 +148,13 @@
             document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
             var curShowIdx = 0;
         } else {
+            console.log('card designer mode')
             // card designer mode
             var data = {"answers": ["cloze"], "hints": [""]} 
         }
     } else {
         // no cloze mode
+        console.log('no cloze mode')
         document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes()
     }
 
