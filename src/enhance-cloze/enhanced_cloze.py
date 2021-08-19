@@ -33,7 +33,6 @@ def gc(arg, fail=False):
 
 MODEL_NAME = "Enhanced Cloze 2.1 v2"
 CONTENT_FIELD_NAME = "Content"
-IN_USE_CLOZES_FIELD_NAME = "In-use Clozes"
 
 
 def generate_enhanced_cloze(note):
@@ -45,7 +44,6 @@ def generate_enhanced_cloze(note):
 
     if not in_use_clozes_numbers:
         # if no clozes are found, empty Cloze1 ~ Cloze20 and fill in Cloze99
-        note[IN_USE_CLOZES_FIELD_NAME] = "[0]"
         note["Cloze99"] = '{{c1::.}}'
 
         for i_cloze_field_number in range(1, 20 + 1):
@@ -53,7 +51,6 @@ def generate_enhanced_cloze(note):
             note[dest_field_name] = ""
     else:
         # Fill in content in in-use cloze fields and empty content in not-in-use fields
-        note[IN_USE_CLOZES_FIELD_NAME] = str(in_use_clozes_numbers)
         note["Cloze99"] = ''
 
         for current_cloze_field_number in range(1, 20 + 1):
@@ -191,7 +188,6 @@ else:
             generate_enhanced_cloze(note)
     hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
-# if ANKI_VERSION_TUPLE == (2, 1, 26)
 
 # prevent warnings about clozes
 if ANKI_VERSION_TUPLE == (2, 1, 26):
