@@ -75,9 +75,9 @@ def in_use_clozes(content):
 def prepareData(content):
     # create a string that contains data that will be passed to a card
 
-    # (string, clozeId) tuples so that adding class names inbetween 
+    # (string, clozeId) tuples so that adding class names inbetween
     # the strings produces the html for the enhanced clozes
-    parts = []     
+    parts = []
 
     answers = []
     hints = []
@@ -101,7 +101,7 @@ def prepareData(content):
 
         # add text between clozes to parts
         prev_end_idx = prev_m.end() if prev_m is not None else 0
-        part += content[prev_end_idx : m.start()]
+        part += content[prev_end_idx: m.start()]
         prev_m = m
 
         part += f'<span class="'
@@ -114,13 +114,13 @@ def prepareData(content):
 
     # add text after last cloze to parts
     prev_end_idx = prev_m.end() if prev_m is not None else 0
-    part += content[prev_end_idx :]
+    part += content[prev_end_idx:]
     parts.append((part, None))
 
     return "<script type='text/javascript'>data=" + json.dumps({
-        'parts' : parts,
-        'answers' : answers,
-        'hints' : hints,
+        'parts': parts,
+        'answers': answers,
+        'hints': hints,
     }).replace('<', '\u003c').replace('-->', '--\>') + "</script>"
 
 
@@ -146,7 +146,7 @@ def update_all_enhanced_cloze(self):
     nids = mw.col.findNotes(f"\"note:{MODEL_NAME}\"")
     for nid in nids:
         note = mw.col.getNote(nid)
-        if not check_model(note.model()):
+        if not check_model(note.note_type()):
             continue
         generate_enhanced_cloze(note)
         note.flush()
@@ -160,6 +160,8 @@ def setup_menu(self):
     a.setShortcut(QKeySequence(gc("update enhanced cloze v2 shortcut")))
     a.triggered.connect(
         lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
+
+
 addHook("browser.setupMenus", setup_menu)
 
 
@@ -173,7 +175,7 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
         def newCallback():
             # self.note may be None when editor isn't yet initialized.
             # ex: entering browser
-            if self.note and self.note.model()["name"] == MODEL_NAME:
+            if self.note and self.note.note_type()["name"] == MODEL_NAME:
                 generate_enhanced_cloze(self.note)
                 if not self.addMode:
                     self.note.flush()
@@ -183,8 +185,9 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     from anki import hooks
+
     def maybe_generate_enhanced_cloze(note):
-        if note and note.model()["name"] == MODEL_NAME:
+        if note and note.note_type()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
     hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
@@ -194,23 +197,28 @@ else:
 if ANKI_VERSION_TUPLE == (2, 1, 26):
     from anki.models import ModelManager
     original_availableClozeOrds = ModelManager._availClozeOrds
+
     def new_availClozeOrds(self, m, flds: str, allowEmpty: bool = True):
         if m['name'] == MODEL_NAME:
-            return [0] # the exact value is not important, it has to be an non-empty array
+            # the exact value is not important, it has to be an non-empty array
+            return [0]
     ModelManager._availClozeOrds = new_availClozeOrds
 elif ANKI_VERSION_TUPLE < (2, 1, 45):
     from anki.notes import Note
     original_cloze_numbers_in_fields = Note.cloze_numbers_in_fields
+
     def new_cloze_numbers_in_fields(self):
-        if self.model()['name'] == MODEL_NAME:
-            return [0] # the exact value is not important, it has to be an non-empty array
+        if self.note_type()['name'] == MODEL_NAME:
+            # the exact value is not important, it has to be an non-empty array
+            return [0]
     Note.cloze_numbers_in_fields = new_cloze_numbers_in_fields
 else:
     from anki.notes import NoteFieldsCheckResult
 
     original_update_duplicate_display = Editor._update_duplicate_display
+
     def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
-        if self.note._model['name'] == MODEL_NAME:
+        if self.note.note_type()['name'] == MODEL_NAME:
             if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
                 result = NoteFieldsCheckResult.NORMAL
             if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
@@ -218,19 +226,19 @@ else:
         original_update_duplicate_display(self, result)
     Editor._update_duplicate_display = _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
 
-
     def ignore_some_cloze_problems_for_enh_clozes(problem, note):
-        if note._model['name']  == MODEL_NAME:
+        if note.note_type()['name'] == MODEL_NAME:
             if problem == tr.adding_cloze_outside_cloze_notetype():
                 return None
             elif problem == tr.adding_cloze_outside_cloze_field():
                 return None
             return problem
-    gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
-
+    gui_hooks.add_cards_will_add_note.append(
+        ignore_some_cloze_problems_for_enh_clozes)
 
     # the warning about no clozes in the field will still show up in version lower 2.1.45
     original_fields_check = notes.Note.fields_check
+
     def new_fields_check(self):
         if mw.col.models.get(self.mid)['name'] != MODEL_NAME:
             return
@@ -241,6 +249,7 @@ else:
         return result
     notes.Note.fields_check = new_fields_check
 
+
 def check_model(model):
     """Whether this model is Enhanced cloze version 2.1"""
     return re.search(MODEL_NAME, model["name"])
@@ -248,7 +257,7 @@ def check_model(model):
 
 def addModel():
     mm = mw.col.models
-    model = mm.byName(MODEL_NAME)
+    model = mm.by_name(MODEL_NAME)
 
     addon_path = os.path.dirname(__file__)
     front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
@@ -256,7 +265,7 @@ def addModel():
     back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
 
     if model:
-        model = mm.byName(MODEL_NAME)
+        model = mm.by_name(MODEL_NAME)
 
         # just replace the script part of the front template, dont change other things
         # this way changes made by the user to the styling are not overwritten
@@ -271,7 +280,7 @@ def addModel():
 
         cur_front = model["tmpls"][0]["qfmt"]
         model["tmpls"][0]["qfmt"] = re.sub(script_re, script, cur_front)
-         
+
         mm.update(model)
         return
 
@@ -293,5 +302,19 @@ def addModel():
         folder = os.path.basename(os.path.dirname(currentfile))
         file = os.path.join(mw.pm.addonFolder(), folder, file)
         copy(file, mw.col.media.dir())
+
+
 addHook("profileLoaded", addModel)
 
+
+def add_compatibilty_aliases():
+    import aqt
+
+    if "note_type" not in list(notes.Note.__dict__.keys()):
+        notes.Note.note_type = notes.Note.model
+
+    if "by_name" not in list(aqt.mw.col.models.__dict__.keys()):
+        aqt.mw.col.models.by_name = aqt.mw.col.models.byName
+
+
+gui_hooks.profile_did_open.append(add_compatibilty_aliases)
