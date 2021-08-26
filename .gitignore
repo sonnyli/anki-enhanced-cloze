@@ -12,7 +12,7 @@ env/
 venv/
 build/
 tools/
- profile/
+profile/
 
 .vscode/
 .idea/
