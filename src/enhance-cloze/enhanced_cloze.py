@@ -11,6 +11,7 @@
 import json
 import os
 import re
+import time
 from shutil import copy
 
 from anki import notes
@@ -251,56 +252,80 @@ def check_model(model):
     return re.search(MODEL_NAME, model["name"])
 
 
-def addModel():
-    mm = mw.col.models
-    model = mm.by_name(MODEL_NAME)
-
+def add_or_update_model():
     addon_path = os.path.dirname(__file__)
     front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
     css_path = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
     back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
 
-    if model:
-        model = mm.by_name(MODEL_NAME)
+    mm = mw.col.models
+    model = mm.by_name(MODEL_NAME)
+    if not model:
+        with open(front_path) as f:
+            enhancedModel["tmpls"][0]["qfmt"] = f.read()
+        with open(css_path) as f:
+            enhancedModel["css"] = f.read()
+        with open(back_path) as f:
+            enhancedModel["tmpls"][0]["afmt"] = f.read()
 
-        # just replace the script part of the front template, dont change other things
+        jsToCopy = ["_Autolinker.min.js",
+                    "_jquery-3.2.1.min.js",
+                    "_jquery.hotkeys.js",
+                    "_jquery.visible.min.js",
+                    ]
+        for file in jsToCopy:
+            currentfile = os.path.abspath(__file__)
+            folder = os.path.basename(os.path.dirname(currentfile))
+            file = os.path.join(mw.pm.addonFolder(), folder, file)
+            copy(file, mw.col.media.dir())
+
+        mm.add(enhancedModel)
+    else:
+        
+        # update flds
+        model['flds'] = enhancedModel['flds']
+
+        # front template:
+        # ... replace the script part
         # this way changes made by the user to the styling are not overwritten
         # note that there other script tags in the template but they dont match the regex
         # because they have a src attribute
-
         # everything below the jquery import gets replaced
+        cur_front = model["tmpls"][0]["qfmt"]
+
         script_re = '<script src="_jquery-3.2.1.min.js"></script>[\w\W]+$'
         with open(front_path) as f:
             front = f.read()
         script = re.search(script_re, front).group(0)
+        cur_front = re.sub(script_re, script, cur_front)
 
-        cur_front = model["tmpls"][0]["qfmt"]
-        model["tmpls"][0]["qfmt"] = re.sub(script_re, script, cur_front)
+        # insert extra "{{cloze:ClozeXX}}" lines to back and front template if 
+        # they are in their pre-cloze-per-note-limit-increase-state
+        if "{{cloze:Cloze50}}" not in cur_front:
+            
+            # front template
+            extra_cloze_lines = '\n'.join(
+                f'            {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
+            extra_cloze_insertion_position_re = "{{cloze:Cloze20}}.*?\n"
+            m = re.search(extra_cloze_insertion_position_re, cur_front)
+            cur_front = cur_front[:m.end()] + \
+                extra_cloze_lines + cur_front[m.end():]
+
+            model["tmpls"][0]["qfmt"] = cur_front
+
+            # back template:
+            cur_back = model["tmpls"][0]["afmt"]
+            extra_cloze_lines = '\n'.join(
+                f'    {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
+            m = re.search(extra_cloze_insertion_position_re, cur_back)
+            cur_back = cur_back[:m.end()] + \
+                extra_cloze_lines + cur_back[m.end():]
+            model["tmpls"][0]["afmt"] = cur_back
 
         mm.update(model)
-        return
-
-    with open(front_path) as f:
-        enhancedModel["tmpls"][0]["qfmt"] = f.read()
-    with open(css_path) as f:
-        enhancedModel["css"] = f.read()
-    with open(back_path) as f:
-        enhancedModel["tmpls"][0]["afmt"] = f.read()
-    mm.add(enhancedModel)
-
-    jsToCopy = ["_Autolinker.min.js",
-                "_jquery-3.2.1.min.js",
-                "_jquery.hotkeys.js",
-                "_jquery.visible.min.js",
-                ]
-    for file in jsToCopy:
-        currentfile = os.path.abspath(__file__)
-        folder = os.path.basename(os.path.dirname(currentfile))
-        file = os.path.join(mw.pm.addonFolder(), folder, file)
-        copy(file, mw.col.media.dir())
 
 
-addHook("profileLoaded", addModel)
+addHook("profileLoaded", add_or_update_model)
 
 
 def add_compatibilty_aliases():
