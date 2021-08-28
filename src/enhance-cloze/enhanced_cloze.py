@@ -11,7 +11,6 @@
 import json
 import os
 import re
-import time
 from shutil import copy
 
 from anki import notes
@@ -281,9 +280,11 @@ def add_or_update_model():
 
         mm.add(enhancedModel)
     else:
-        
-        # update flds
-        model['flds'] = enhancedModel['flds']
+
+        # add more fields without overwriting changes made by user
+        if "Cloze50" not in mm.fieldNames(model):
+            for i in range(21, 51):
+                mm.add_field(model, mm.new_field(f"Cloze{i}"))
 
         # front template:
         # ... replace the script part
@@ -299,10 +300,10 @@ def add_or_update_model():
         script = re.search(script_re, front).group(0)
         cur_front = re.sub(script_re, script, cur_front)
 
-        # insert extra "{{cloze:ClozeXX}}" lines to back and front template if 
+        # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
         # they are in their pre-cloze-per-note-limit-increase-state
         if "{{cloze:Cloze50}}" not in cur_front:
-            
+
             # front template
             extra_cloze_lines = '\n'.join(
                 f'            {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
