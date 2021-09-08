@@ -299,6 +299,7 @@ def add_or_update_model():
             front = f.read()
         script = re.search(script_re, front).group(0)
         cur_front = re.sub(script_re, script, cur_front)
+        model["tmpls"][0]["qfmt"] = cur_front
 
         # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
         # they are in their pre-cloze-per-note-limit-increase-state
