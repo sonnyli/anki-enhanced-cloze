@@ -204,6 +204,7 @@ elif ANKI_VERSION_TUPLE < (2, 1, 45):
         if self.note_type()['name'] == MODEL_NAME:
             # the exact value is not important, it has to be an non-empty array
             return [0]
+        return original_cloze_numbers_in_fields(self)
     Note.cloze_numbers_in_fields = new_cloze_numbers_in_fields
 else:
     from anki.notes import NoteFieldsCheckResult
