@@ -19,7 +19,7 @@ from anki.hooks import addHook, wrap
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import *  # type: ignore
-from aqt.utils import KeyboardModifiersPressed, tr
+from aqt.utils import tr
 
 from .model import enhancedModel
 
@@ -348,14 +348,21 @@ def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
         if m:
             highest = max(highest, sorted([int(x) for x in m])[-1])
         # reuse last?
-        if not KeyboardModifiersPressed().alt:
+        if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
             highest += 1
         # must start at 1
         highest = max(1, highest)
         self.web.eval("wrap('{{c%d::', '}}');" % highest)
 
-    shortcuts.append(("Ctrl+Shift+C", lambda: myOnCloze(editor)))
-    shortcuts.append(("Ctrl+Shift+Alt+C", lambda: myOnCloze(editor)))
+    replace_shortcut(shortcuts, "Ctrl+Shift+C", lambda: myOnCloze(editor))
+    replace_shortcut(shortcuts, "Ctrl+Shift+Alt+C", lambda: myOnCloze(editor))
+
+
+def replace_shortcut(shortcuts, key_combination, func):
+    existing = next((x for x in shortcuts if x[0] == key_combination), None)
+    if existing is not None:
+        shortcuts.remove(existing)
+    shortcuts.append((key_combination, func))
 
 
 gui_hooks.editor_did_init_shortcuts.append(
@@ -370,6 +377,9 @@ def add_compatibilty_aliases():
 
     if "by_name" not in list(aqt.mw.col.models.__dict__.keys()):
         aqt.mw.col.models.by_name = aqt.mw.col.models.byName
+
+    if "call_after_note_saved" not in list(aqt.editor.Editor.__dict__.keys()):
+        aqt.editor.Editor.call_after_note_saved = aqt.editor.Editor.saveNow
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
