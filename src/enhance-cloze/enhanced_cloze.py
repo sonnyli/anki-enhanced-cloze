@@ -14,12 +14,12 @@ import re
 from shutil import copy
 
 from anki import notes
-from anki import version as anki_version # type: ignore
+from anki import version as anki_version  # type: ignore
 from anki.hooks import addHook, wrap
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
-from aqt.qt import * # type: ignore
-from aqt.utils import tr
+from aqt.qt import *  # type: ignore
+from aqt.utils import KeyboardModifiersPressed, tr
 
 from .model import enhancedModel
 
@@ -41,7 +41,6 @@ def generate_enhanced_cloze(note):
     note["data"] = prepareData(src_content)
 
     in_use_clozes_numbers = in_use_clozes(src_content)
-
     if not in_use_clozes_numbers:
         # if no clozes are found, fill Cloze1 and empty Cloze2 ~ Cloze50
         note["Cloze1"] = '{{c1::.}}'
@@ -326,6 +325,41 @@ def add_or_update_model():
 
 
 addHook("profileLoaded", add_or_update_model)
+
+
+original_onCloze = Editor.onCloze
+
+
+def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
+
+    # code adapted from original onCloze and _onCloze
+    def myOnCloze(self):
+        if self.note.note_type()['name'] == MODEL_NAME:
+            self.call_after_note_saved(
+                lambda: _myOnCloze(editor), keepFocus=True)
+        else:
+            original_onCloze(self)
+
+    def _myOnCloze(self):
+        # find the highest existing cloze
+        highest = 0
+        val = self.note['Content']
+        m = re.findall(r"\{\{c(\d+)::", val)
+        if m:
+            highest = max(highest, sorted([int(x) for x in m])[-1])
+        # reuse last?
+        if not KeyboardModifiersPressed().alt:
+            highest += 1
+        # must start at 1
+        highest = max(1, highest)
+        self.web.eval("wrap('{{c%d::', '}}');" % highest)
+
+    shortcuts.append(("Ctrl+Shift+C", lambda: myOnCloze(editor)))
+    shortcuts.append(("Ctrl+Shift+Alt+C", lambda: myOnCloze(editor)))
+
+
+gui_hooks.editor_did_init_shortcuts.append(
+    make_cloze_shortcut_start_at_cloze1)
 
 
 def add_compatibilty_aliases():
