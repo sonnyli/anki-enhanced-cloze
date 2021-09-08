@@ -14,11 +14,11 @@ import re
 from shutil import copy
 
 from anki import notes
-from anki import version as anki_version
+from anki import version as anki_version # type: ignore
 from anki.hooks import addHook, wrap
 from aqt import gui_hooks, mw
 from aqt.editor import Editor
-from aqt.qt import *
+from aqt.qt import * # type: ignore
 from aqt.utils import tr
 
 from .model import enhancedModel
