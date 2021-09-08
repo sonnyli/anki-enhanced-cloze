@@ -161,11 +161,11 @@
         return keys.every(k => equals(a[k], b[k]));
     };
 
-    var clozesExist = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")[0]
+    var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
+    var clozesExist = dummyClozes[0] && dummyClozes[0].hasAttribute("cloze-id")
     if (clozesExist) {
         if (!equals(data['parts'], [["", null]])){
             // normal mode
-            var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
             var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
 
             document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
