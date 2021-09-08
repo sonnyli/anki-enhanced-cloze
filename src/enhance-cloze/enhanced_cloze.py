@@ -43,16 +43,14 @@ def generate_enhanced_cloze(note):
     in_use_clozes_numbers = in_use_clozes(src_content)
 
     if not in_use_clozes_numbers:
-        # if no clozes are found, empty Cloze1 ~ Cloze50 and fill in Cloze99
-        note["Cloze99"] = '{{c1::.}}'
+        # if no clozes are found, fill Cloze1 and empty Cloze2 ~ Cloze50
+        note["Cloze1"] = '{{c1::.}}'
 
-        for i_cloze_field_number in range(1, 51):
+        for i_cloze_field_number in range(2, 51):
             dest_field_name = "Cloze%s" % i_cloze_field_number
             note[dest_field_name] = ""
     else:
         # Fill in content in in-use cloze fields and empty content in not-in-use fields
-        note["Cloze99"] = ''
-
         for current_cloze_field_number in range(1, 51):
             dest_field_name = "Cloze%s" % current_cloze_field_number
 
