@@ -1,7 +1,8 @@
 
-def add_compatibility_alias(old_name, new_name, namespace):
+
+def add_compatibility_alias(namespace, new_name, old_name):
     if new_name not in list(namespace.__dict__.keys()):
-        setattr(namespace, new_name, old_name)
+        setattr(namespace, new_name, getattr(namespace, old_name))
         return True
     
     return False

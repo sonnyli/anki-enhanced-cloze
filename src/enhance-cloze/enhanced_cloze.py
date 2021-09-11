@@ -372,9 +372,9 @@ gui_hooks.editor_did_init_shortcuts.append(
 
 
 def add_compatibilty_aliases():
-    add_compatibility_alias("note_type", "model", notes.Note)
-    add_compatibility_alias("by_name", "byName", aqt.mw.col.models)
-    add_compatibility_alias("call_after_note_saved", "saveNow", aqt.editor.Editor)
+    add_compatibility_alias(notes.Note, "note_type", "model",)
+    add_compatibility_alias(aqt.mw.col.models, "by_name", "byName")
+    add_compatibility_alias(aqt.editor.Editor, "call_after_note_saved", "saveNow")
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
