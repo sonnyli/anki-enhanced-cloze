@@ -12,15 +12,14 @@ import json
 import os
 import re
 from shutil import copy
-
 import aqt
 from anki import notes
 from anki import version as anki_version  # type: ignore
 from anki.hooks import addHook, wrap
-from aqt import gui_hooks, mw
+from aqt import Qt, gui_hooks, mw
 from aqt.editor import Editor
-from aqt.qt import *  # type: ignore
 from aqt.utils import tr
+from PyQt5.QtGui import QKeySequence
 
 from .model import enhancedModel
 from .utils import add_compatibility_alias
