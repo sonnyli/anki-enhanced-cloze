@@ -13,6 +13,7 @@ import os
 import re
 from shutil import copy
 
+import aqt
 from anki import notes
 from anki import version as anki_version  # type: ignore
 from anki.hooks import addHook, wrap
@@ -22,6 +23,7 @@ from aqt.qt import *  # type: ignore
 from aqt.utils import tr
 
 from .model import enhancedModel
+from .utils import add_compatibility_alias
 
 
 def gc(arg, fail=False):
@@ -371,16 +373,9 @@ gui_hooks.editor_did_init_shortcuts.append(
 
 
 def add_compatibilty_aliases():
-    import aqt
-
-    if "note_type" not in list(notes.Note.__dict__.keys()):
-        notes.Note.note_type = notes.Note.model
-
-    if "by_name" not in list(aqt.mw.col.models.__dict__.keys()):
-        aqt.mw.col.models.by_name = aqt.mw.col.models.byName
-
-    if "call_after_note_saved" not in list(aqt.editor.Editor.__dict__.keys()):
-        aqt.editor.Editor.call_after_note_saved = aqt.editor.Editor.saveNow
+    add_compatibility_alias("note_type", "model", notes.Note)
+    add_compatibility_alias("by_name", "byName", aqt.mw.col.models)
+    add_compatibility_alias("call_after_note_saved", "saveNow", aqt.editor.Editor)
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
