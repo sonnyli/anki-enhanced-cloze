@@ -163,19 +163,19 @@
     var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
     var clozesExist = dummyClozes[0] && dummyClozes[0].hasAttribute("cloze-id")
     if (clozesExist) {
-        if (!equals(data['parts'], [["", null]])){
-            // normal mode
-            var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
+        // normal mode
+        var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))
 
-            document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
-            var curShowIdx = 0;
-        } else {
+        document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes(genuineClozeIndeces)
+        var curShowIdx = 0;
+    } else {
+        if (equals(data['parts'], [["", null]])){
             // card designer mode
             var data = {"answers": ["cloze"], "hints": [""]} 
+        } else {
+            // no cloze mode
+            document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes()
         }
-    } else {
-        // no cloze mode
-        document.getElementById("enhanced-clozes").innerHTML = prepareEnhancedClozes()
     }
 
     $(function () {
