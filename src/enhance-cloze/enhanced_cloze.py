@@ -267,7 +267,6 @@ def add_or_update_model():
             enhancedModel["tmpls"][0]["afmt"] = f.read()
 
         jsToCopy = ["_Autolinker.min.js",
-                    "_jquery-3.2.1.min.js",
                     "_jquery.hotkeys.js",
                     "_jquery.visible.min.js",
                     ]
@@ -293,11 +292,18 @@ def add_or_update_model():
         # everything below the jquery import gets replaced
         cur_front = model["tmpls"][0]["qfmt"]
 
-        script_re = '<script src="_jquery-3.2.1.min.js"></script>[\w\W]+$'
+        script_re = '<!-- Do not change this part of the template! Changes will be overwritten by the add-on -->[\w\W]+$'
         with open(front_path) as f:
             front = f.read()
         script = re.search(script_re, front).group(0)
         cur_front = re.sub(script_re, script, cur_front)
+        
+        # remove old imports if they exist
+        import_re = '<script\s*src=".+"\s*></script> *'
+        import_before_script_re = f'{import_re}\n(?={script_re})'
+        while re.search(import_before_script_re, cur_front):
+            cur_front = re.sub(import_before_script_re, '', cur_front)
+
         model["tmpls"][0]["qfmt"] = cur_front
 
         # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
