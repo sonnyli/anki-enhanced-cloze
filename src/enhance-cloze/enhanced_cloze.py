@@ -110,6 +110,12 @@ def prepareData(content):
     # add text after last cloze to parts
     prev_end_idx = prev_m.end() if prev_m is not None else 0
     part += content[prev_end_idx:]
+
+    # without this images (and probably other media) don't work
+    # because they get partially url encoded somewhere down the line
+    src_re = r'(?:src *= *)"(.+?)"'
+    part = re.sub(src_re, r"src='\1'", part)
+        
     parts.append((part, None))
 
     return "<script type='text/javascript'>data=" + json.dumps({
