@@ -148,7 +148,7 @@
 <script src="_jquery.visible.min.js"></script>
 
 <script>
-    equals = (a, b) => {
+    var equals = (a, b) => {
         if (a === b) return true;
         if (a instanceof Date && b instanceof Date)
             return a.getTime() === b.getTime();
@@ -274,11 +274,9 @@
     }
 
     function toggleCloze(elem, displayOption) {
-        var answer = '', hint = '';
         var index = $(elem).attr('index');
-
-        answer = data["answers"][index]
-        hint = data["hints"][index]
+        var answer = data["answers"][index]
+        var hint = data["hints"][index]
 
         if(answer.startsWith('#')){
             answer = answer.slice(1)
