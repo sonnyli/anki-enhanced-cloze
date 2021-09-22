@@ -305,6 +305,17 @@
                 $(elem).html(hint);
             };
         };
+
+        // rerun mathjax on the document so that the cloze text gets formatted
+        // ... for MathJax 2
+        try {
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        } catch {}
+        // ... for MathJax 3     
+        try {
+            MathJax.typesetPromise()
+        } catch {}
+
     }
 
     function showNextElement(elem) {
