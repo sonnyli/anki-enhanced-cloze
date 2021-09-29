@@ -115,7 +115,7 @@ def prepareData(content):
     # because they get partially url encoded somewhere down the line
     src_re = r'(?:src *= *)"(.+?)"'
     part = re.sub(src_re, r"src='\1'", part)
-        
+
     parts.append((part, None))
 
     return "<script type='text/javascript'>data=" + json.dumps({
@@ -303,7 +303,7 @@ def add_or_update_model():
             front = f.read()
         script = re.search(script_re, front).group(0)
         cur_front = re.sub(script_re, script, cur_front)
-        
+
         # remove old imports if they exist
         import_re = '<script\s*src=".+"\s*></script> *'
         import_before_script_re = f'{import_re}\n(?={script_re})'
@@ -341,10 +341,9 @@ def add_or_update_model():
 addHook("profileLoaded", add_or_update_model)
 
 
-original_onCloze = Editor.onCloze
-
-
 def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
+
+    original_onCloze = Editor.onCloze
 
     # code adapted from original onCloze and _onCloze
     def myOnCloze(self):
@@ -386,7 +385,8 @@ gui_hooks.editor_did_init_shortcuts.append(
 def add_compatibilty_aliases():
     add_compatibility_alias(notes.Note, "note_type", "model",)
     add_compatibility_alias(aqt.mw.col.models, "by_name", "byName")
-    add_compatibility_alias(aqt.editor.Editor, "call_after_note_saved", "saveNow")
+    add_compatibility_alias(
+        aqt.editor.Editor, "call_after_note_saved", "saveNow")
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
