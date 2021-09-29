@@ -200,27 +200,32 @@
             }
         })
 
-        // SETUP CLOZE CLICK EVENT
-        // simply doing for example "$(.pseudo-cloze).click()" doesn't work on iOS
+        // this is probably needed for iOS, see here: https://stackoverflow.com/a/15096054
         $('.pseudo-cloze').css('cursor', 'pointer')
-        $(document).on('click', '.pseudo-cloze', function (event) {
-            toggleCloze(event.target, 'toggle');
-        });
-
         $('.genuine-cloze').css('cursor', 'pointer')
-        $(document).on('click', '.genuine-cloze', function (event) {
-            toggleCloze(event.target, 'toggle');
-        });
-
         $('#show-one-cloze-left').css('cursor', 'pointer')
-        $(document).on('click', '#show-one-cloze-left', function (event) {
-            showOneCloze();
-        });
-
         $('#show-one-cloze-right').css('cursor', 'pointer')
-        $(document).on('click', '#show-one-cloze-right', function (event) {
-            showOneCloze();
-        });
+
+        if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
+            firstTimeLoadingEnhancedCloze = false
+
+            // simply doing for example "$(.pseudo-cloze).click()" doesn't work on iOS
+            $(document).on('click', '.pseudo-cloze', function (event) {
+                toggleCloze(event.target, 'toggle');
+            });
+
+            $(document).on('click', '.genuine-cloze', function (event) {
+                toggleCloze(event.target, 'toggle');
+            });
+
+            $(document).on('click', '#show-one-cloze-left', function (event) {
+                showOneCloze();
+            });
+
+            $(document).on('click', '#show-one-cloze-right', function (event) {
+                showOneCloze();
+            });
+        }
 
     });
 
