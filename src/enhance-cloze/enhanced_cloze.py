@@ -126,18 +126,16 @@ def prepareData(content):
 
 
 # menu entry for updating clozes in browser
-def update_all_enhanced_clozes_in_browser(self, evt=None):
+def update_all_enhanced_clozes_in_browser(self: aqt.browser.Browser, evt=None):
     browser = self
     mw = browser.mw
 
     mw.checkpoint("Update Enhanced Clozes")
     mw.progress.start()
-    browser.model.beginReset()
 
     update_all_enhanced_cloze(self)
 
-    browser.model.endReset()
-    mw.requireReset()
+    browser.onReset()
     mw.progress.finish()
     mw.reset()
 
