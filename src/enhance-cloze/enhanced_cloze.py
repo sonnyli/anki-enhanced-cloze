@@ -12,6 +12,7 @@ import json
 import os
 import re
 from shutil import copy
+
 import aqt
 from anki import notes
 from anki import version as anki_version  # type: ignore
@@ -39,7 +40,7 @@ CONTENT_FIELD_NAME = "Content"
 def generate_enhanced_cloze(note):
     src_content = note[CONTENT_FIELD_NAME]
 
-    note["data"] = prepareData(src_content)
+    note["data"] = prepare_data(src_content)
 
     in_use_clozes_numbers = in_use_clozes(src_content)
     if not in_use_clozes_numbers:
@@ -67,11 +68,11 @@ def in_use_clozes(content):
     return sorted([int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
 
 
-def prepareData(content):
+def prepare_data(content):
     # create a string that contains data that will be passed to a card
 
-    # (string, clozeId) tuples so that adding class names inbetween
-    # the strings produces the html for the enhanced clozes
+    # (string, clozeId) tuples so that adding class names inbetween the strings produces
+    # the html for the enhanced clozes
     parts = []
 
     answers = []
@@ -81,7 +82,7 @@ def prepareData(content):
     part = ''
     prev_m = None
     for i, m in enumerate(re.finditer(cloze_regex, content)):
-        cloze_string = m.group()  # eg. {{c1::aa[::bbb]}}
+        cloze_string = m.group()
         index_of_answer = cloze_string.find("::") + 2
         index_of_hint = cloze_string.rfind("::") + 2
         cloze_id = cloze_string[2: index_of_answer - 2]  # like: c1 or c11
@@ -110,19 +111,20 @@ def prepareData(content):
     # add text after last cloze to parts
     prev_end_idx = prev_m.end() if prev_m is not None else 0
     part += content[prev_end_idx:]
-
-    # without this images (and probably other media) don't work
-    # because they get partially url encoded somewhere down the line
-    src_re = r'(?:src *= *)"(.+?)"'
-    part = re.sub(src_re, r"src='\1'", part)
-
     parts.append((part, None))
 
-    return "<script type='text/javascript'>data=" + json.dumps({
+    result = "<script type='text/javascript'>data=" + json.dumps({
         'parts': parts,
         'answers': answers,
         'hints': hints,
     }).replace('<', '\u003c').replace('-->', '--\>') + "</script>"
+
+    # without this images (and probably other media) don't work
+    # because they get partially url encoded somewhere down the line
+    src_re = r'src\s?=\s?\\"(.+?)\\"'
+    result = re.sub(src_re, r"src='\1'", result)
+
+    return result
 
 
 # menu entry for updating clozes in browser
