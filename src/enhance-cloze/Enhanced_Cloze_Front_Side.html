@@ -159,8 +159,8 @@
         return keys.every(k => equals(a[k], b[k]));
     };
 
-    var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll(":scope > span")
-    var clozesExist = dummyClozes[0] && dummyClozes[0].hasAttribute("cloze-id")
+    var dummyClozes = document.getElementById("dummy-clozes").querySelectorAll("span[cloze-id]")
+    var clozesExist = dummyClozes[0] 
     if (clozesExist) {
         // normal mode
         var genuineClozeIndeces = [...dummyClozes].map(x => Number.parseInt(x.getAttribute("cloze-id").slice(1)))

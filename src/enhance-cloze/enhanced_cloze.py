@@ -314,12 +314,14 @@ def add_or_update_model():
 
         # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
         # they are in their pre-cloze-per-note-limit-increase-state
-        if "{{cloze:Cloze50}}" not in cur_front:
+        # the (\w+?:)* is there so that this still works when there are more modifiers
+        # in front of the field name (like "edit" from the Edit Field during Review (Cloze) add-on) 
+        if not re.search("{{(\w+?:)*cloze:Cloze50}}", cur_front):
 
             # front template
             extra_cloze_lines = '\n'.join(
                 f'            {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
-            extra_cloze_insertion_position_re = "{{cloze:Cloze20}}.*?\n"
+            extra_cloze_insertion_position_re = "{{(\w+?:)*cloze:Cloze20}}.*?\n"
             m = re.search(extra_cloze_insertion_position_re, cur_front)
             cur_front = cur_front[:m.end()] + \
                 extra_cloze_lines + cur_front[m.end():]
