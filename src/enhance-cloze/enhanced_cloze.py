@@ -19,8 +19,8 @@ from anki import version as anki_version  # type: ignore
 from anki.hooks import addHook, wrap
 from aqt import Qt, gui_hooks, mw
 from aqt.editor import Editor
+from aqt.qt import *
 from aqt.utils import tr
-from PyQt5.QtGui import QKeySequence
 
 from .model import enhancedModel
 from .utils import add_compatibility_alias
@@ -45,7 +45,7 @@ def generate_enhanced_cloze(note):
     in_use_clozes_numbers = in_use_clozes(src_content)
     if not in_use_clozes_numbers:
         # if no clozes are found, fill Cloze1 and empty Cloze2 ~ Cloze50
-        note["Cloze1"] = '{{c1::.}}'
+        note["Cloze1"] = "{{c1::.}}"
 
         for i_cloze_field_number in range(2, 51):
             dest_field_name = "Cloze%s" % i_cloze_field_number
@@ -56,10 +56,12 @@ def generate_enhanced_cloze(note):
             dest_field_name = "Cloze%s" % current_cloze_field_number
 
             if not current_cloze_field_number in in_use_clozes_numbers:
-                note[dest_field_name] = ''
+                note[dest_field_name] = ""
                 continue
 
-            note[dest_field_name] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
+            note[
+                dest_field_name
+            ] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
 
 
 def in_use_clozes(content):
@@ -79,25 +81,25 @@ def prepare_data(content):
     hints = []
 
     cloze_regex = r"\{\{c\d+::[\s\S]*?\}\}"
-    part = ''
+    part = ""
     prev_m = None
     for i, m in enumerate(re.finditer(cloze_regex, content)):
         cloze_string = m.group()
         index_of_answer = cloze_string.find("::") + 2
         index_of_hint = cloze_string.rfind("::") + 2
-        cloze_id = cloze_string[2: index_of_answer - 2]  # like: c1 or c11
+        cloze_id = cloze_string[2 : index_of_answer - 2]  # like: c1 or c11
         cloze_length = len(cloze_string)
 
         if index_of_answer == index_of_hint:  # actually no hint at all
-            answer = cloze_string[index_of_answer: cloze_length - 2]
+            answer = cloze_string[index_of_answer : cloze_length - 2]
             hint = ""
         else:
-            answer = cloze_string[index_of_answer: index_of_hint - 2]
-            hint = cloze_string[index_of_hint: cloze_length - 2]
+            answer = cloze_string[index_of_answer : index_of_hint - 2]
+            hint = cloze_string[index_of_hint : cloze_length - 2]
 
         # add text between clozes to parts
         prev_end_idx = prev_m.end() if prev_m is not None else 0
-        part += content[prev_end_idx: m.start()]
+        part += content[prev_end_idx : m.start()]
         prev_m = m
 
         part += f'<span class="'
@@ -113,11 +115,19 @@ def prepare_data(content):
     part += content[prev_end_idx:]
     parts.append((part, None))
 
-    result = "<script type='text/javascript'>data=" + json.dumps({
-        'parts': parts,
-        'answers': answers,
-        'hints': hints,
-    }).replace('<', '\u003c').replace('-->', '--\>') + "</script>"
+    result = (
+        "<script type='text/javascript'>data="
+        + json.dumps(
+            {
+                "parts": parts,
+                "answers": answers,
+                "hints": hints,
+            }
+        )
+        .replace("<", "\u003c")
+        .replace("-->", "--\>")
+        + "</script>"
+    )
 
     # without this images (and probably other media) don't work
     # because they get partially url encoded somewhere down the line
@@ -144,9 +154,9 @@ def update_all_enhanced_clozes_in_browser(self: aqt.browser.Browser, evt=None):
 
 def update_all_enhanced_cloze(self):
     mw = self.mw
-    nids = mw.col.findNotes(f"\"note:{MODEL_NAME}\"")
+    nids = mw.col.find_notes(f'"note:{MODEL_NAME}"')
     for nid in nids:
-        note = mw.col.getNote(nid)
+        note = mw.col.get_note(nid)
         if not check_model(note.note_type()):
             continue
         generate_enhanced_cloze(note)
@@ -157,10 +167,9 @@ def setup_menu(self):
     browser = self
     menu = browser.form.menuEdit
     menu.addSeparator()
-    a = menu.addAction('Update Enhanced Clozes v2')
+    a = menu.addAction("Update Enhanced Clozes v2")
     a.setShortcut(QKeySequence(gc("update enhanced cloze v2 shortcut")))
-    a.triggered.connect(
-        lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
+    a.triggered.connect(lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
 
 
 addHook("browser.setupMenus", setup_menu)
@@ -182,7 +191,9 @@ if ANKI_VERSION_TUPLE < (2, 1, 21):
                     self.note.flush()
                     self.mw.requireReset()
             callback()
+
         return _old(self, newCallback, keepFocus)
+
     Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
 else:
     from anki import hooks
@@ -190,64 +201,75 @@ else:
     def maybe_generate_enhanced_cloze(note):
         if note and note.note_type()["name"] == MODEL_NAME:
             generate_enhanced_cloze(note)
+
     hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
 
 
 # prevent warnings about clozes
 if ANKI_VERSION_TUPLE == (2, 1, 26):
     from anki.models import ModelManager
+
     original_availableClozeOrds = ModelManager._availClozeOrds
 
     def new_availClozeOrds(self, m, flds: str, allowEmpty: bool = True):
-        if m['name'] == MODEL_NAME:
+        if m["name"] == MODEL_NAME:
             # the exact value is not important, it has to be an non-empty array
             return [0]
+
     ModelManager._availClozeOrds = new_availClozeOrds
 elif ANKI_VERSION_TUPLE < (2, 1, 45):
     from anki.notes import Note
+
     original_cloze_numbers_in_fields = Note.cloze_numbers_in_fields
 
     def new_cloze_numbers_in_fields(self):
-        if self.note_type()['name'] == MODEL_NAME:
+        if self.note_type()["name"] == MODEL_NAME:
             # the exact value is not important, it has to be an non-empty array
             return [0]
         return original_cloze_numbers_in_fields(self)
+
     Note.cloze_numbers_in_fields = new_cloze_numbers_in_fields
 else:
     from anki.notes import NoteFieldsCheckResult
 
     original_update_duplicate_display = Editor._update_duplicate_display
 
-    def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(self, result) -> None:
-        if self.note.note_type()['name'] == MODEL_NAME:
+    def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(
+        self, result
+    ) -> None:
+        if self.note.note_type()["name"] == MODEL_NAME:
             if result == NoteFieldsCheckResult.NOTETYPE_NOT_CLOZE:
                 result = NoteFieldsCheckResult.NORMAL
             if result == NoteFieldsCheckResult.FIELD_NOT_CLOZE:
                 result = NoteFieldsCheckResult.NORMAL
         original_update_duplicate_display(self, result)
-    Editor._update_duplicate_display = _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
+
+    Editor._update_duplicate_display = (
+        _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
+    )
 
     def ignore_some_cloze_problems_for_enh_clozes(problem, note):
-        if note.note_type()['name'] == MODEL_NAME:
+        if note.note_type()["name"] == MODEL_NAME:
             if problem == tr.adding_cloze_outside_cloze_notetype():
                 return None
             elif problem == tr.adding_cloze_outside_cloze_field():
                 return None
             return problem
-    gui_hooks.add_cards_will_add_note.append(
-        ignore_some_cloze_problems_for_enh_clozes)
+
+    gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
     # the warning about no clozes in the field will still show up in version lower 2.1.45
     original_fields_check = notes.Note.fields_check
 
     def new_fields_check(self):
-        if mw.col.models.get(self.mid)['name'] != MODEL_NAME:
+        if mw.col.models.get(self.mid)["name"] != MODEL_NAME:
             return
 
         result = original_fields_check(self)
         if result == NoteFieldsCheckResult.MISSING_CLOZE:
             return None
         return result
+
     notes.Note.fields_check = new_fields_check
 
 
@@ -272,10 +294,11 @@ def add_or_update_model():
         with open(back_path) as f:
             enhancedModel["tmpls"][0]["afmt"] = f.read()
 
-        jsToCopy = ["_Autolinker.min.js",
-                    "_jquery.hotkeys.js",
-                    "_jquery.visible.min.js",
-                    ]
+        jsToCopy = [
+            "_Autolinker.min.js",
+            "_jquery.hotkeys.js",
+            "_jquery.visible.min.js",
+        ]
         for file in jsToCopy:
             currentfile = os.path.abspath(__file__)
             folder = os.path.basename(os.path.dirname(currentfile))
@@ -286,7 +309,7 @@ def add_or_update_model():
     else:
 
         # add more fields without overwriting changes made by user
-        if "Cloze50" not in mm.fieldNames(model):
+        if "Cloze50" not in mm.field_names(model):
             for i in range(21, 51):
                 mm.add_field(model, mm.new_field(f"Cloze{i}"))
 
@@ -298,7 +321,7 @@ def add_or_update_model():
         # everything below the jquery import gets replaced
         cur_front = model["tmpls"][0]["qfmt"]
 
-        script_re = '<!-- Do not change this part of the template! Changes will be overwritten by the add-on -->[\w\W]+$'
+        script_re = "<!-- Do not change this part of the template! Changes will be overwritten by the add-on -->[\w\W]+$"
         with open(front_path) as f:
             front = f.read()
         script = re.search(script_re, front).group(0)
@@ -306,35 +329,39 @@ def add_or_update_model():
 
         # remove old imports if they exist
         import_re = '<script\s*src=".+"\s*></script> *'
-        import_before_script_re = f'{import_re}\n(?={script_re})'
+        import_before_script_re = f"{import_re}\n(?={script_re})"
         while re.search(import_before_script_re, cur_front):
-            cur_front = re.sub(import_before_script_re, '', cur_front)
+            cur_front = re.sub(import_before_script_re, "", cur_front)
 
         model["tmpls"][0]["qfmt"] = cur_front
 
         # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
         # they are in their pre-cloze-per-note-limit-increase-state
         # the (\w+?:)* is there so that this still works when there are more modifiers
-        # in front of the field name (like "edit" from the Edit Field during Review (Cloze) add-on) 
+        # in front of the field name (like "edit" from the Edit Field during Review (Cloze) add-on)
         if not re.search("{{(\w+?:)*cloze:Cloze50}}", cur_front):
 
             # front template
-            extra_cloze_lines = '\n'.join(
-                f'            {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
+            extra_cloze_lines = (
+                "\n".join(
+                    f"            {{{{cloze:Cloze{idx}}}}}" for idx in range(21, 51)
+                )
+                + "\n"
+            )
             extra_cloze_insertion_position_re = "{{(\w+?:)*cloze:Cloze20}}.*?\n"
             m = re.search(extra_cloze_insertion_position_re, cur_front)
-            cur_front = cur_front[:m.end()] + \
-                extra_cloze_lines + cur_front[m.end():]
+            cur_front = cur_front[: m.end()] + extra_cloze_lines + cur_front[m.end() :]
 
             model["tmpls"][0]["qfmt"] = cur_front
 
             # back template:
             cur_back = model["tmpls"][0]["afmt"]
-            extra_cloze_lines = '\n'.join(
-                f'    {{{{cloze:Cloze{idx}}}}}' for idx in range(21, 51)) + '\n'
+            extra_cloze_lines = (
+                "\n".join(f"    {{{{cloze:Cloze{idx}}}}}" for idx in range(21, 51))
+                + "\n"
+            )
             m = re.search(extra_cloze_insertion_position_re, cur_back)
-            cur_back = cur_back[:m.end()] + \
-                extra_cloze_lines + cur_back[m.end():]
+            cur_back = cur_back[: m.end()] + extra_cloze_lines + cur_back[m.end() :]
             model["tmpls"][0]["afmt"] = cur_back
 
         mm.update(model)
@@ -349,21 +376,20 @@ def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
 
     # code adapted from original onCloze and _onCloze
     def myOnCloze(self):
-        if self.note.note_type()['name'] == MODEL_NAME:
-            self.call_after_note_saved(
-                lambda: _myOnCloze(editor), keepFocus=True)
+        if self.note.note_type()["name"] == MODEL_NAME:
+            self.call_after_note_saved(lambda: _myOnCloze(editor), keepFocus=True)
         else:
             original_onCloze(self)
 
     def _myOnCloze(self):
         # find the highest existing cloze
         highest = 0
-        val = self.note['Content']
+        val = self.note["Content"]
         m = re.findall(r"\{\{c(\d+)::", val)
         if m:
             highest = max(highest, sorted([int(x) for x in m])[-1])
         # reuse last?
-        if not self.mw.app.keyboardModifiers() & Qt.AltModifier:
+        if not self.mw.app.keyboardModifiers() & Qt.KeyboardModifier.AltModifier:
             highest += 1
         # must start at 1
         highest = max(1, highest)
@@ -380,15 +406,20 @@ def replace_shortcut(shortcuts, key_combination, func):
     shortcuts.append((key_combination, func))
 
 
-gui_hooks.editor_did_init_shortcuts.append(
-    make_cloze_shortcut_start_at_cloze1)
+if ANKI_VERSION_TUPLE < (2, 1, 50):
+    gui_hooks.editor_did_init_shortcuts.append(make_cloze_shortcut_start_at_cloze1)
 
 
 def add_compatibilty_aliases():
-    add_compatibility_alias(notes.Note, "note_type", "model",)
-    add_compatibility_alias(aqt.mw.col.models, "by_name", "byName")
     add_compatibility_alias(
-        aqt.editor.Editor, "call_after_note_saved", "saveNow")
+        notes.Note,
+        "note_type",
+        "model",
+    )
+    add_compatibility_alias(aqt.mw.col.models, "by_name", "byName")
+    add_compatibility_alias(aqt.editor.Editor, "call_after_note_saved", "saveNow")
+    add_compatibility_alias(aqt.mw.col, "get_note", "getNote")
+    add_compatibility_alias(aqt.mw.col, "find_notes", "findNotes")
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
