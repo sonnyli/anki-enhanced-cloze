@@ -22,8 +22,8 @@ from aqt.editor import Editor
 from aqt.qt import *
 from aqt.utils import tr
 
+from .compat import add_compatibilty_aliases
 from .model import enhancedModel
-from .utils import add_compatibility_alias
 
 
 def gc(arg, fail=False):
@@ -408,18 +408,6 @@ def replace_shortcut(shortcuts, key_combination, func):
 
 if ANKI_VERSION_TUPLE < (2, 1, 50):
     gui_hooks.editor_did_init_shortcuts.append(make_cloze_shortcut_start_at_cloze1)
-
-
-def add_compatibilty_aliases():
-    add_compatibility_alias(
-        notes.Note,
-        "note_type",
-        "model",
-    )
-    add_compatibility_alias(aqt.mw.col.models, "by_name", "byName")
-    add_compatibility_alias(aqt.editor.Editor, "call_after_note_saved", "saveNow")
-    add_compatibility_alias(aqt.mw.col, "get_note", "getNote")
-    add_compatibility_alias(aqt.mw.col, "find_notes", "findNotes")
 
 
 gui_hooks.profile_did_open.append(add_compatibilty_aliases)
