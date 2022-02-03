@@ -8,22 +8,33 @@
 #            (for the included js see the top of these files)
 
 
-import json
 import os
 import re
+from copy import deepcopy
 from shutil import copy
+from typing import Optional, Tuple
 
-import aqt
 from anki import notes
 from anki import version as anki_version  # type: ignore
-from anki.hooks import addHook, wrap
-from aqt import Qt, gui_hooks, mw
+from anki.hooks import note_will_flush
+from aqt import Qt, mw
 from aqt.editor import Editor
+from aqt.gui_hooks import (
+    add_cards_will_add_note,
+    editor_did_init_shortcuts,
+    profile_did_open,
+    sync_did_finish,
+)
 from aqt.qt import *
-from aqt.utils import tr
+from aqt.utils import askUser, tr
 
 from .compat import add_compatibilty_aliases
 from .model import enhancedModel
+
+try:
+    from anki.models import NotetypeDict  # type: ignore
+except:
+    pass
 
 
 def gc(arg, fail=False):
@@ -34,175 +45,68 @@ def gc(arg, fail=False):
 
 
 MODEL_NAME = "Enhanced Cloze 2.1 v2"
-CONTENT_FIELD_NAME = "Content"
-
-
-def generate_enhanced_cloze(note):
-    src_content = note[CONTENT_FIELD_NAME]
-
-    note["data"] = prepare_data(src_content)
-
-    in_use_clozes_numbers = in_use_clozes(src_content)
-    if not in_use_clozes_numbers:
-        # if no clozes are found, fill Cloze1 and empty Cloze2 ~ Cloze50
-        note["Cloze1"] = "{{c1::.}}"
-
-        for i_cloze_field_number in range(2, 51):
-            dest_field_name = "Cloze%s" % i_cloze_field_number
-            note[dest_field_name] = ""
-    else:
-        # Fill in content in in-use cloze fields and empty content in not-in-use fields
-        for current_cloze_field_number in range(1, 51):
-            dest_field_name = "Cloze%s" % current_cloze_field_number
-
-            if not current_cloze_field_number in in_use_clozes_numbers:
-                note[dest_field_name] = ""
-                continue
-
-            note[
-                dest_field_name
-            ] = f'<span show-state="hint" cloze-id="c{current_cloze_field_number}">{{{{c{current_cloze_field_number}::text}}}}</span>'
-
-
-def in_use_clozes(content):
-    cloze_start_regex = r"\{\{c\d+::"
-    cloze_start_matches = re.findall(cloze_start_regex, content)
-    return sorted([int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)])
-
-
-def prepare_data(content):
-    # create a string that contains data that will be passed to a card
-
-    # (string, clozeId) tuples so that adding class names inbetween the strings produces
-    # the html for the enhanced clozes
-    parts = []
-
-    answers = []
-    hints = []
-
-    cloze_regex = r"\{\{c\d+::[\s\S]*?\}\}"
-    part = ""
-    prev_m = None
-    for i, m in enumerate(re.finditer(cloze_regex, content)):
-        cloze_string = m.group()
-        index_of_answer = cloze_string.find("::") + 2
-        index_of_hint = cloze_string.rfind("::") + 2
-        cloze_id = cloze_string[2 : index_of_answer - 2]  # like: c1 or c11
-        cloze_length = len(cloze_string)
-
-        if index_of_answer == index_of_hint:  # actually no hint at all
-            answer = cloze_string[index_of_answer : cloze_length - 2]
-            hint = ""
-        else:
-            answer = cloze_string[index_of_answer : index_of_hint - 2]
-            hint = cloze_string[index_of_hint : cloze_length - 2]
-
-        # add text between clozes to parts
-        prev_end_idx = prev_m.end() if prev_m is not None else 0
-        part += content[prev_end_idx : m.start()]
-        prev_m = m
-
-        part += f'<span class="'
-        parts.append((part, int(cloze_id[1:])))
-
-        part = f'" index="{i}" show-state="hint" cloze-id="{cloze_id}"></span>'
-
-        answers.append(answer)
-        hints.append(hint)
-
-    # add text after last cloze to parts
-    prev_end_idx = prev_m.end() if prev_m is not None else 0
-    part += content[prev_end_idx:]
-    parts.append((part, None))
-
-    result = (
-        "<script type='text/javascript'>data="
-        + json.dumps(
-            {
-                "parts": parts,
-                "answers": answers,
-                "hints": hints,
-            }
-        )
-        .replace("<", "\u003c")
-        .replace("-->", "--\>")
-        + "</script>"
-    )
-
-    # without this images (and probably other media) don't work
-    # because they get partially url encoded somewhere down the line
-    src_re = r'src\s?=\s?\\"(.+?)\\"'
-    result = re.sub(src_re, r"src='\1'", result)
-
-    return result
-
-
-# menu entry for updating clozes in browser
-def update_all_enhanced_clozes_in_browser(self: aqt.browser.Browser, evt=None):
-    browser = self
-    mw = browser.mw
-
-    mw.checkpoint("Update Enhanced Clozes")
-    mw.progress.start()
-
-    update_all_enhanced_cloze(self)
-
-    browser.onReset()
-    mw.progress.finish()
-    mw.reset()
-
-
-def update_all_enhanced_cloze(self):
-    mw = self.mw
-    nids = mw.col.find_notes(f'"note:{MODEL_NAME}"')
-    for nid in nids:
-        note = mw.col.get_note(nid)
-        if not check_model(note.note_type()):
-            continue
-        generate_enhanced_cloze(note)
-        note.flush()
-
-
-def setup_menu(self):
-    browser = self
-    menu = browser.form.menuEdit
-    menu.addSeparator()
-    a = menu.addAction("Update Enhanced Clozes v2")
-    a.setShortcut(QKeySequence(gc("update enhanced cloze v2 shortcut")))
-    a.triggered.connect(lambda _, b=browser: update_all_enhanced_clozes_in_browser(b))
-
-
-addHook("browser.setupMenus", setup_menu)
-
-
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
 
-# hook the processing of the note
-if ANKI_VERSION_TUPLE < (2, 1, 21):
-    # copied from "Cloze (Hide All)" by phu54321 from
-    # https://ankiweb.net/shared/info/1709973686
-    def ec_beforeSaveNow(self, callback, keepFocus=False, *, _old):
-        def newCallback():
-            # self.note may be None when editor isn't yet initialized.
-            # ex: entering browser
-            if self.note and self.note.note_type()["name"] == MODEL_NAME:
-                generate_enhanced_cloze(self.note)
-                if not self.addMode:
-                    self.note.flush()
-                    self.mw.requireReset()
-            callback()
+UPDATE_MSG = f"""\
+Do you want to update the <b>{MODEL_NAME}</b> note type?<br><br>\
+The changes include:
+<ul>
+<li>Adding and editing notes on mobile works now (except for adding notes without clozes)</li>
+<li>New shortcuts for reavaling clozes (configurable):
+<ul>
+<li>I           - Reveal Next Genuine Cloze</li>
+<li>Shift+I     - Toggle All Genuine Clozes</li>
+<li>N           - Reveal Next Pseudo Cloze</li>
+<li>Shift+N     - Toggle All Pseudo Clozes</li>
+</ul>
+<li>A new option to disable scrolling to a cloze when it is revealed</li>
+<li>All Cloze1, Cloze2, ... fields except for Cloze99 are not longer necessary and were removed (also the data field)</li>
+<li>Some fixes</li>
+</ul>
 
-        return _old(self, newCallback, keepFocus)
+This will require a full sync to AnkiWeb (if you use synchronization).<br><br>
 
-    Editor.saveNow = wrap(Editor.saveNow, ec_beforeSaveNow, "around")
-else:
-    from anki import hooks
+If you have made changes to the note type and don\'t want to loose them you can duplicate the note type first (Tools->Manage Note Types->Add).
+<br><br>
+If you don't want to update you can get the previous version of the add-on from <a href="https://github.com/RisingOrange/anki-enhanced-cloze/releases/tag/1.1.4">here</a>.
+<br><br>
+<b>Note:</b> If you choose "No" this notice will show up the next time you open Anki."""
 
-    def maybe_generate_enhanced_cloze(note):
-        if note and note.note_type()["name"] == MODEL_NAME:
-            generate_enhanced_cloze(note)
 
-    hooks.note_will_flush.append(maybe_generate_enhanced_cloze)
+# this is needed so the no-cloze mode works
+def maybe_fill_in_or_remove_cloze99(note):
+    def in_use_clozes():
+        cloze_start_regex = r"{{c\d+::"
+        cloze_start_matches = re.findall(cloze_start_regex, note["Content"])
+        return [int(re.sub(r"\D", "", x)) for x in set(cloze_start_matches)]
+
+    if note and note.note_type()["name"] == MODEL_NAME:
+        if in_use_clozes():
+            note["Cloze99"] = ""
+        else:
+            note["Cloze99"] = "{{c1::.}}"
+
+
+note_will_flush.append(maybe_fill_in_or_remove_cloze99)
+
+
+def on_profile_did_open():
+    add_compatibilty_aliases()
+
+    if not mw.can_auto_sync():  # type: ignore
+        add_or_update_model()
+    else:
+        # add the function to the sync_did_finish hook
+        # and remove it from the hook after sync
+        # so it only gets called on the auto sync on opening Anki
+        def fn():
+            add_or_update_model()
+            sync_did_finish.remove(fn)
+
+        sync_did_finish.append(fn)
+
+
+profile_did_open.append(on_profile_did_open)
 
 
 # prevent warnings about clozes
@@ -256,7 +160,7 @@ else:
                 return None
             return problem
 
-    gui_hooks.add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
+    add_cards_will_add_note.append(ignore_some_cloze_problems_for_enh_clozes)
 
     # the warning about no clozes in the field will still show up in version lower 2.1.45
     original_fields_check = notes.Note.fields_check
@@ -273,101 +177,95 @@ else:
     notes.Note.fields_check = new_fields_check
 
 
-def check_model(model):
+def check_note_type(note_type: "NotetypeDict") -> bool:
     """Whether this model is Enhanced cloze version 2.1"""
-    return re.search(MODEL_NAME, model["name"])
+    return bool(re.search(MODEL_NAME, note_type["name"]))
+
+
+def new_version_available():
+    cur_note_type = mw.col.models.by_name(MODEL_NAME)
+
+    available_note_type = deepcopy(enhancedModel)
+    load_enhanced_cloze(available_note_type)
+
+    return version(cur_note_type) is None or version(cur_note_type) < version(
+        available_note_type
+    )
+
+
+def version(note_type: "NotetypeDict") -> Optional[Tuple]:
+    front = note_type["tmpls"][0]["qfmt"]
+    m = re.match("<!-- VERSION (.+) -->", front)
+    if not m:
+        return None
+
+    return tuple(map(int, m.group(1).split(".")))
 
 
 def add_or_update_model():
+    mm = mw.col.models
+    model = mm.by_name(MODEL_NAME)
+    if not model:
+        load_enhanced_cloze(enhancedModel)
+        mm.add(enhancedModel)
+    else:
+
+        if not new_version_available():
+            return
+
+        if not askUser(
+            title="Enhanced Cloze",
+            text=UPDATE_MSG,
+            defaultno=True,
+        ):
+            return
+
+        def remove_field_if_exists(field_name, model):
+            if field_name in mm.field_names(model):
+                mm.remove_field(model, mm.field_map(model)[field_name][1])
+
+        fields_to_remove = [f"Cloze{i}" for i in range(1, 51)]
+        fields_to_remove.extend(
+            [
+                "data",
+                "In-use Clozes",
+            ]
+        )
+
+        for field in fields_to_remove:
+            remove_field_if_exists(field, model)
+
+        load_enhanced_cloze(model)
+        mm.update(model)
+
+
+def load_enhanced_cloze(note_type: "NotetypeDict"):
     addon_path = os.path.dirname(__file__)
     front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
     css_path = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
     back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
 
-    mm = mw.col.models
-    model = mm.by_name(MODEL_NAME)
-    if not model:
-        with open(front_path) as f:
-            enhancedModel["tmpls"][0]["qfmt"] = f.read()
-        with open(css_path) as f:
-            enhancedModel["css"] = f.read()
-        with open(back_path) as f:
-            enhancedModel["tmpls"][0]["afmt"] = f.read()
+    with open(front_path) as f:
+        front = f.read()
+    with open(back_path) as f:
+        back = f.read()
+    with open(css_path) as f:
+        styling = f.read()
 
-        jsToCopy = [
-            "_Autolinker.min.js",
-            "_jquery.hotkeys.js",
-            "_jquery.visible.min.js",
-        ]
-        for file in jsToCopy:
-            currentfile = os.path.abspath(__file__)
-            folder = os.path.basename(os.path.dirname(currentfile))
-            file = os.path.join(mw.pm.addonFolder(), folder, file)
-            copy(file, mw.col.media.dir())
+    note_type["tmpls"][0]["qfmt"] = front
+    note_type["tmpls"][0]["afmt"] = back
+    note_type["css"] = styling
 
-        mm.add(enhancedModel)
-    else:
-
-        # add more fields without overwriting changes made by user
-        if "Cloze50" not in mm.field_names(model):
-            for i in range(21, 51):
-                mm.add_field(model, mm.new_field(f"Cloze{i}"))
-
-        # front template:
-        # ... replace the script part
-        # this way changes made by the user to the styling are not overwritten
-        # note that there other script tags in the template but they dont match the regex
-        # because they have a src attribute
-        # everything below the jquery import gets replaced
-        cur_front = model["tmpls"][0]["qfmt"]
-
-        script_re = "<!-- Do not change this part of the template! Changes will be overwritten by the add-on -->[\w\W]+$"
-        with open(front_path) as f:
-            front = f.read()
-        script = re.search(script_re, front).group(0)
-        cur_front = re.sub(script_re, script, cur_front)
-
-        # remove old imports if they exist
-        import_re = '<script\s*src=".+"\s*></script> *'
-        import_before_script_re = f"{import_re}\n(?={script_re})"
-        while re.search(import_before_script_re, cur_front):
-            cur_front = re.sub(import_before_script_re, "", cur_front)
-
-        model["tmpls"][0]["qfmt"] = cur_front
-
-        # insert extra "{{cloze:ClozeXX}}" lines to back and front template if
-        # they are in their pre-cloze-per-note-limit-increase-state
-        # the (\w+?:)* is there so that this still works when there are more modifiers
-        # in front of the field name (like "edit" from the Edit Field during Review (Cloze) add-on)
-        if not re.search("{{(\w+?:)*cloze:Cloze50}}", cur_front):
-
-            # front template
-            extra_cloze_lines = (
-                "\n".join(
-                    f"            {{{{cloze:Cloze{idx}}}}}" for idx in range(21, 51)
-                )
-                + "\n"
-            )
-            extra_cloze_insertion_position_re = "{{(\w+?:)*cloze:Cloze20}}.*?\n"
-            m = re.search(extra_cloze_insertion_position_re, cur_front)
-            cur_front = cur_front[: m.end()] + extra_cloze_lines + cur_front[m.end() :]
-
-            model["tmpls"][0]["qfmt"] = cur_front
-
-            # back template:
-            cur_back = model["tmpls"][0]["afmt"]
-            extra_cloze_lines = (
-                "\n".join(f"    {{{{cloze:Cloze{idx}}}}}" for idx in range(21, 51))
-                + "\n"
-            )
-            m = re.search(extra_cloze_insertion_position_re, cur_back)
-            cur_back = cur_back[: m.end()] + extra_cloze_lines + cur_back[m.end() :]
-            model["tmpls"][0]["afmt"] = cur_back
-
-        mm.update(model)
-
-
-addHook("profileLoaded", add_or_update_model)
+    jsToCopy = [
+        "_Autolinker.min.js",
+        "_jquery.hotkeys.js",
+        "_jquery.visible.min.js",
+    ]
+    for file in jsToCopy:
+        currentfile = os.path.abspath(__file__)
+        folder = os.path.basename(os.path.dirname(currentfile))
+        file = os.path.join(mw.pm.addonFolder(), folder, file)
+        copy(file, mw.col.media.dir())
 
 
 def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
@@ -407,7 +305,4 @@ def replace_shortcut(shortcuts, key_combination, func):
 
 
 if ANKI_VERSION_TUPLE < (2, 1, 50):
-    gui_hooks.editor_did_init_shortcuts.append(make_cloze_shortcut_start_at_cloze1)
-
-
-gui_hooks.profile_did_open.append(add_compatibilty_aliases)
+    editor_did_init_shortcuts.append(make_cloze_shortcut_start_at_cloze1)
