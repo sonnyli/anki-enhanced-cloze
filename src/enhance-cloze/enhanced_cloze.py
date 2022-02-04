@@ -54,8 +54,8 @@ The changes include:
 <li>Adding and editing notes on mobile works now (except for adding notes without clozes)</li>
 <li>New shortcuts for reavaling clozes (configurable):
 <ul>
-<li>I           - Reveal Next Genuine Cloze</li>
-<li>Shift+I     - Toggle All Genuine Clozes</li>
+<li>J           - Reveal Next Genuine Cloze</li>
+<li>Shift+J     - Toggle All Genuine Clozes</li>
 <li>N           - Reveal Next Pseudo Cloze</li>
 <li>Shift+N     - Toggle All Pseudo Clozes</li>
 </ul>
