@@ -93,7 +93,7 @@ note_will_flush.append(maybe_fill_in_or_remove_cloze99)
 def on_profile_did_open():
     add_compatibilty_aliases()
 
-    if not mw.can_auto_sync():  # type: ignore
+    if not mw.can_auto_sync():
         add_or_update_model()
     else:
         # add the function to the sync_did_finish hook
