@@ -1,17 +1,116 @@
-<b>This version is uploaded by a third party and by the original creators/maintainers, see below</b>.
+Cloze notes are very powerful for spaced repetition softwares like Anki. This add-on along with the attached note type
+aims to improve Anki's mechanism of displaying clozes and offer some great features for better user interaction.
 
-This add-on adds a more powerful cloze deletion note type.
+The name of the note type the add-on uses is "<b>Enhanced Cloze 2.1 v2</b>".
 
-A more detailed explanation is given on the page of the original version for <a href="https://ankiweb.net/shared/info/873439973">the old anki version 2.0</a>.
+<b>Preview</b>
+<i>front of the card:</i>
+<img src="https://raw.githubusercontent.com/luzhe610/anki-enhanced-cloze/master/pic/Front.jpg">
+<i>back of the card:</i>
+<img src="https://raw.githubusercontent.com/luzhe610/anki-enhanced-cloze/master/pic/Back.jpg">
 
-<b># general warnings</b>
-- You should probably not use this add-on at the moment. This add-on has no maintainer. In 2020-02   it seems to work witht the current version of Anki. But who knows if this will hold true for future versions of Anki. If something breaks there's a good chance that no one will help you so. USE THIS AT YOUR OWN RISK.
-- For each cloze you add this add-on copies the whole text. So if you paste 1000 words into the first field of an enhanced cloze note and do 20 clozes the note will have ultimately 21000 words. If you do this often the size of your database will increase substantially. You can only use Ankiweb if your database (excluding any images which are not in the database) is smaller than 100mb.
+<b>Main features</b>
+<li>Improved Mechanism of Displaying Clozes</li>
+<ul>
+    <li>Take card1 for example.</li>
+    <ul>
+        <li>All c1 clozes (let me call them "genuine cloze" for this card) will be red.</li>
+        <li>All other clozes (let me call them "pseudo cloze" for this card), eg. c2, c3 will be blue.</li>
+    </ul>
+    <li>On the front of the card, all clozes (genuine or pseudo) will be shown as their hint (if one exists) or empty.
+    </li>
+    <li>You can show the answer of every cloze (genuine or pseudo) by clicking it.</li>
+    <li>This means you can think about a genuize cloze and check the answer one by one without getting hints from
+        pseudo-clozes and genuine clozes after it.</li>
+</ul>
 
-<b># Known Limitations, Bugs, Todo<b>
-see the readme.md in the github repo.
+<li>Handy Keyboard And Touchscreen Shortcut</li>
+<ul>
+    You can ...
+    <li>uncover genuine clozes one by one using the keyboard shortcut [J] (conifgurable) or by touching the left
+        border of the card</li>
+    <li>uncover pseudo clozes one by one using the keyboard shortcut [N] (conifgurable) or by touching the right
+        border of the card</li>
+    <li>toggle all genuine clozes using the keyboard shortcut [Shift+J] (conifgurable)
+        border</li>
+    <li>toggle all pseudo clozes using the keyboard shortcut [Shift+N] (conifgurable)
+        border</li>
+    <li>This makes uncovering clozes super convenient, no matter whether it's on a computer using the keyboard or on a
+        mobile phone.</li>
+    <li>You can edit the shortcut keys by editing the configuration section of the note type (top of the front card
+        template).</li>
+</ul>
 
-<strong>SUPPORT THIS ADD-ON</strong>
-The initial version for the old Anki 2.0 was made by LuZhe610 who wrote: "If you find this add-on helpful, please consider donating to me via Paypal: https://www.paypal.me/LuZhe610".
+<li>Auto Scroll To The Relevant Cloze</li>
+<ul>
+    <li>The card will scroll to the first genuine cloze at the very beginning.</li>
+    <li>When you use shortcut to uncover clozes one by one, if the next cloze is out of view (common situation on
+        mobile phones with small screen), the card will automatically scroll to it. Super fluent experience of
+        answering cards. This behaviour can be turned off (by editing the configuration section of the note type)</li>
+</ul>
 
-The original update to Anki 2.1 was made by Arthur Milchior. His description included: All of my contributions are freely shared with every users. They took a lot of time to create and to maintain. If you think that they improve your use of anki, I'd gladly accept a tip: <a href="https://www.patreon.com/ArthurMilchior" rel="nofollow" title="Support me on Patreon 😄"><img src="http://milchior.fr/patreon_button.svg"></a> <a href="https://ko-fi.com/P5P6WT4A" rel="nofollow" title="Buy me a coffee 😊"><img src="http://milchior.fr/kofi_button.svg"></a>. 
+<li>Can Be Used In No-Cloze Basic Mode</li>
+<ul>
+    <li>It is also Ok to go without clozes using this cloze-type templates. Just type question in Content field and
+        answer in Note field. Note, as answer, will be hidden on the front-card and shown on the back-card, just the way
+        Basic template does.</li>
+    <li>Anki won't warn you that no cloze are found.</li>
+</ul>
+
+<li>"Normal" clozes</li>>
+<ul>
+    <li>If you want a cloze to alway be displayed when it's a pseudo cloze, prepend the answer with a #-sign like this:
+        {{c1::#some text}}.</li>
+</ul>
+
+<b>Usage</b>
+<ul>
+    <li>In the editor select the "Enhanced Cloze 2.1 v2" note type</li>
+    <li>The content field is the only necessary field that you have to write something into. Other fields are optional.
+    </li>
+    <li>Write down anything in the Content field, whether with clozes like {{c1::abc}} or not, the add-on will process
+        the note intelligently.</li>
+    <li>For you information, you may create clozes with increasing numbers like {{c1::aa}} {{c2::bb}} with Ctrl+Shift+C
+        and clozes with the same number like {{c1::aa}} {{c1::bb}}.</li>
+    <li>I'd recommend you to group several closely related pieces of information to use the same cloze number and review
+        them together on a card for convenience; use different cloze numbers to turn you informative note into several
+        cards to maximize review efficiency.</li>
+</ul>
+
+<b>Credits</b>
+The 2022-02-04 - update was inspired by <a href="https://github.com/TRIAEIOU">TRIAEIOU's</a><a
+    href="https://ankiweb.net/shared/info/1632356464">Flexible Cloze</a> add-on
+This add-on is a fork of https://github.com/ijgnd/anki-enhanced-cloze by <a
+    href="https://github.com/TRIAEIOU">ijgnd</a>.
+Previous version of the add-on by Arthur Milchior: <a href="https://github.com/Arthur-Milchior/anki-enhanced-cloze"
+    rel="nofollow">https://github.com/Arthur-Milchior/anki-enhanced-cloze</a>
+Previous version of the add-on by LuZhe610: <a href="https://ankiweb.net/shared/info/873439973"
+    rel="nofollow">https://ankiweb.net/shared/info/873439973</a>
+
+<b>Problems, Bugs, Errors, Improvements</b>
+If you have an idea for an improvement or encounter a problem please create an issue on <a
+    href="https://github.com/RisingOrange/anki-enhanced-cloze/issues" rel="nofollow">Github</a><a>.</a>
+
+<b>Support my work</b>
+If this add-on is useful to you please consider buying me a coffee:
+<a href="https://www.buymeacoffee.com/jakubfidler" rel="nofollow"><img src="https://i.imgur.com/9bfEVZ6.jpg"></a>
+
+<b>Changelog</b>
+2022-02-04: Big update: Adding/Editing on mobile works now, removed unnecessary fields (Thanks to TRIAEIOU for showing
+how to do this), added shortcuts, some fixes
+2022-01-28: Update for Anki 2.1.50
+2021-10-20: Fixed incompatibility with <a href="https://ankiweb.net/shared/info/385888438" rel="nofollow">Field during
+    Review (Cloze)</a> (cards work now, but you still can't edit them during review)
+2021-10-15: Fixed images not working in the Content field (again, because the first fix was not complete)
+2021-9-31: Fixed touches not working properly on iOS devices
+2021-9-22: Fixed mathjax not working inside of clozes
+2021-9-16: Fixed images not working in first field
+2021-9-14: Fixed incompatibilty with Popup-dictionary
+2021-9-08: Fixed no-cloze-mode on Ankidroid (force sync collection from desktop to phone to make it work) + clozes start
+at 1 when using the shortcut in the editor
+2021-8-28: Add-on doesn't overwrite changes of the note type now (you can add new fields, just don't delete the existing
+ones)
+2021-8-26: You can now have 50 clozes on one note if you want to (before this update the limit was 20)
+2021-8-19: Added backwards compatibilty down to Anki 2.1.28
+2021-8-18: Fixed no cloze mode
+2021-8-17: Fixed "type in the answer" message showing up on mobile, Fixed "show one cloze" hotkey action</li>
