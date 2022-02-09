@@ -183,14 +183,11 @@ def check_note_type(note_type: "NotetypeDict") -> bool:
 
 
 def new_version_available():
-    cur_note_type = mw.col.models.by_name(MODEL_NAME)
+    return current_version() is None or current_version() < version(enhanced_cloze())
 
-    available_note_type = deepcopy(enhancedModel)
-    load_enhanced_cloze(available_note_type)
 
-    return version(cur_note_type) is None or version(cur_note_type) < version(
-        available_note_type
-    )
+def current_version():
+    return version(mw.col.models.by_name(MODEL_NAME))
 
 
 def version(note_type: "NotetypeDict") -> Optional[Tuple]:
@@ -203,40 +200,69 @@ def version(note_type: "NotetypeDict") -> Optional[Tuple]:
 
 
 def add_or_update_model():
-    mm = mw.col.models
-    model = mm.by_name(MODEL_NAME)
+    model = mw.col.models.by_name(MODEL_NAME)
     if not model:
-        load_enhanced_cloze(enhancedModel)
-        mm.add(enhancedModel)
+        mw.col.models.add(enhanced_cloze())
     else:
 
         if not new_version_available():
             return
 
-        if not askUser(
-            title="Enhanced Cloze",
-            text=UPDATE_MSG,
-            defaultno=True,
-        ):
+        if current_version() is None:
+            update_from_unnamed_version()
             return
 
-        def remove_field_if_exists(field_name, model):
-            if field_name in mm.field_names(model):
-                mm.remove_field(model, mm.field_map(model)[field_name][1])
+        # update the code part of the front template but keep the rest as it is
+        seperator = "<!-- ENHANCED_CLOZE -->"
+        cur_front = model["tmpls"][0]["qfmt"]
+        new_front = enhanced_cloze()["tmpls"][0]["qfmt"]
 
-        fields_to_remove = [f"Cloze{i}" for i in range(1, 51)]
-        fields_to_remove.extend(
-            [
-                "data",
-                "In-use Clozes",
-            ]
-        )
+        m = re.search(seperator, cur_front)
+        if not m:
+            print("Could not find seperator comment, replacing whole front template")
+            model["tmpls"][0]["qfmt"] = new_front
+        else:
+            cur_before_sep = cur_front[: m.start()]
+            new_after_sep = new_front[m.end() :]
+            model["tmpls"][0]["qfmt"] = f"{cur_before_sep}{seperator}{new_after_sep}"
 
-        for field in fields_to_remove:
-            remove_field_if_exists(field, model)
+        mw.col.models.update(model)
 
-        load_enhanced_cloze(model)
-        mm.update(model)
+
+def update_from_unnamed_version():
+    if not askUser(
+        title="Enhanced Cloze",
+        text=UPDATE_MSG,
+        defaultno=True,
+    ):
+        return
+
+    mm = mw.col.models
+    model = mm.by_name(MODEL_NAME)
+
+    def remove_field_if_exists(field_name, model):
+        if field_name in mm.field_names(model):
+            mm.remove_field(model, mm.field_map(model)[field_name][1])
+
+    fields_to_remove = [f"Cloze{i}" for i in range(1, 51)]
+    fields_to_remove.extend(
+        [
+            "data",
+            "In-use Clozes",
+        ]
+    )
+
+    for field in fields_to_remove:
+        remove_field_if_exists(field, model)
+
+    load_enhanced_cloze(model)
+    mm.update(model)
+
+
+def enhanced_cloze() -> "NotetypeDict":
+    result = deepcopy(enhancedModel)
+    load_enhanced_cloze(result)
+    return result
 
 
 def load_enhanced_cloze(note_type: "NotetypeDict"):

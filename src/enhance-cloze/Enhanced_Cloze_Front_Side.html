@@ -1,4 +1,4 @@
-<!-- VERSION 1.2 -->
+<!-- VERSION 1.3 -->
 <script>
     var scrollToClozeOnToggle = true
 
@@ -236,10 +236,10 @@
                 return
             }
 
-            var clozeId = $(`.${clozeType}-cloze[show-state="hint"]`)[0].getAttribute("cid")
-            $(`.${clozeType}-cloze[cid="${clozeId}"`).each(function (index, elem) {
-                revealCloze(elem);
-            })
+            var hiddenClozes = $(`.${clozeType}-cloze[show-state="hint"]`)
+            if (hiddenClozes.length != 0) {
+                revealCloze(hiddenClozes[0]);
+            }
         }
 
         function toggleAllClozesOfAType(clozeType) {
