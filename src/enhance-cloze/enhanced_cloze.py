@@ -183,20 +183,32 @@ def check_note_type(note_type: "NotetypeDict") -> bool:
 
 
 def new_version_available():
-    return current_version() is None or current_version() < version(enhanced_cloze())
+    return current_version() is None or current_version() < incoming_version()
 
 
-def current_version():
+def current_version() -> Optional[Tuple[int]]:
     return version(mw.col.models.by_name(MODEL_NAME))
 
 
-def version(note_type: "NotetypeDict") -> Optional[Tuple]:
+def incoming_version() -> Optional[Tuple[int]]:
+    return version(enhanced_cloze())
+
+
+def version(note_type: "NotetypeDict") -> Optional[Tuple[int]]:
     front = note_type["tmpls"][0]["qfmt"]
-    m = re.match("<!-- VERSION (.+) -->", front)
+    m = re.match("<!-- VERSION (.+?) -->", front)
     if not m:
         return None
 
     return tuple(map(int, m.group(1).split(".")))
+
+
+def set_version(front: str, version: Tuple[int]) -> str:
+    return re.sub(
+        "<!-- VERSION (.+?) -->",
+        f"<!-- VERSION {'.'.join(map(str, version))} -->",
+        front,
+    )
 
 
 def add_or_update_model():
@@ -212,21 +224,47 @@ def add_or_update_model():
             update_from_unnamed_version()
             return
 
-        # update the code part of the front template but keep the rest as it is
+        # update the code part, the version number and the config on the front template, keep the rest as it is
+        # so that users can customize the other parts of the template
         seperator = "<!-- ENHANCED_CLOZE -->"
         cur_front = model["tmpls"][0]["qfmt"]
-        new_front = enhanced_cloze()["tmpls"][0]["qfmt"]
+        incoming_front = enhanced_cloze()["tmpls"][0]["qfmt"]
 
-        m = re.search(seperator, cur_front)
-        if not m:
+        cur_sep_m = re.search(seperator, cur_front)
+        incoming_sep_m = re.search(seperator, incoming_front)
+        if not cur_sep_m:
             print("Could not find seperator comment, replacing whole front template")
-            model["tmpls"][0]["qfmt"] = new_front
+            model["tmpls"][0]["qfmt"] = incoming_front
         else:
-            cur_before_sep = cur_front[: m.start()]
-            new_after_sep = new_front[m.end() :]
-            model["tmpls"][0]["qfmt"] = f"{cur_before_sep}{seperator}{new_after_sep}"
+            cur_before_sep = cur_front[: cur_sep_m.start()]
+            incoming_after_sep = incoming_front[incoming_sep_m.end() :]
+            new_front = f"{cur_before_sep}{seperator}{incoming_after_sep}"
+            new_front = set_version(new_front, incoming_version())
+            new_front = maybe_add_config_option(
+                new_front, "var animateScroll = true", "scrollToClozeOnToggle"
+            )
+            model["tmpls"][0]["qfmt"] = new_front
 
         mw.col.models.update(model)
+
+
+def maybe_add_config_option(front: str, to_be_added: str, previous_option: str) -> str:
+    # hacky way to add options to the CONFIG, the CONFIG being the section of the front template
+    # before the <!-- CONFIG END --> comment
+    # the text in to be added will be added after previous_option where previous_option
+    # is the name of a configuration variable
+    config_m = re.search("([\w\W]*?)<!-- CONFIG END -->", front)
+    config_str = config_m.group(1)
+    if re.search(f"var +{to_be_added} +=", config_str):
+        return front
+
+    new_config_str = re.sub(
+        f"(?<=\n)(.+)(var +{previous_option}.+)\n",
+        rf"\1\2\n\1{to_be_added}\n",
+        config_str,
+    )
+    result = f"{new_config_str}{front[len(config_str) :]}"
+    return result
 
 
 def update_from_unnamed_version():
