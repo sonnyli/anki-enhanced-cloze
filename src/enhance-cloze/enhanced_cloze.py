@@ -93,6 +93,8 @@ note_will_flush.append(maybe_fill_in_or_remove_cloze99)
 def on_profile_did_open():
     add_compatibilty_aliases()
 
+    add_reset_notetype_action_to_menu()
+
     if not mw.can_auto_sync():
         add_or_update_model()
     else:
@@ -107,6 +109,30 @@ def on_profile_did_open():
 
 
 profile_did_open.append(on_profile_did_open)
+
+
+def add_reset_notetype_action_to_menu():
+    menu: QMenu = mw.form.menuTools
+    action = menu.addAction("Reset Enhanced Cloze note type to default")
+
+    def on_triggered():
+
+        if not askUser(
+            "This will reset the Enhanced Cloze note type to its default version.\n\nNote: After doing this the next you time you synchronize Anki will require a full sync to AnkiWeb.\n\nDo you want to continue?",
+        ):
+            return
+
+        current_model = mw.col.models.by_name(MODEL_NAME)
+        if not current_model:
+            add_or_update_model()
+            return
+
+        default_model = enhanced_cloze()
+        default_model["id"] = current_model["id"]
+        default_model["usn"] = -1  # triggers full sync
+        mw.col.models.update(default_model)
+
+    action.triggered.connect(on_triggered)
 
 
 # prevent warnings about clozes
