@@ -22,7 +22,7 @@ from aqt.editor import Editor
 from aqt.gui_hooks import (
     add_cards_will_add_note,
     editor_did_init_shortcuts,
-    profile_did_open,
+    main_window_did_init,
     sync_did_finish,
 )
 from aqt.qt import *
@@ -108,7 +108,7 @@ def on_profile_did_open():
         sync_did_finish.append(fn)
 
 
-profile_did_open.append(on_profile_did_open)
+main_window_did_init.append(on_profile_did_open)
 
 
 def add_reset_notetype_action_to_menu():
