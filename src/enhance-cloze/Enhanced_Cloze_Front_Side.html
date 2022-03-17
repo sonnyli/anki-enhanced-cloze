@@ -1,7 +1,8 @@
-<!-- VERSION 1.3 -->
+<!-- VERSION 1.4 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
+    var showHintsForPseudoClozes = true
 
     // Shortcut options
     var revealNextGenuineClozeShortcut = "J"
@@ -268,9 +269,9 @@
         }
 
         function isVisible(elm) {
-          var rect = elm.getBoundingClientRect();
-          var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-          return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+            var rect = elm.getBoundingClientRect();
+            var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+            return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
         }
 
         function maybeScrollToCloze(elem) {
@@ -349,6 +350,10 @@
         var answer = enhancedClozesData["answers"][index]
         var hint = enhancedClozesData["hints"][index]
 
+        if (!showHintsForPseudoClozes && cloze.classList.contains('pseudo-cloze')) {
+            hint = ""
+        }
+
         if (answer.startsWith('#')) {
             answer = answer.slice(1)
 
@@ -359,23 +364,14 @@
             }
         }
 
-        hint = '&nbsp;&nbsp;[&nbsp;&nbsp;' + hint + '&nbsp;&nbsp;]&nbsp;&nbsp;';
-
-        if (displayOption == 'answer') {
+        if (displayOption == 'answer' || (displayOption == 'toggle' && $(cloze).attr('show-state') == 'hint')) {
             $(cloze).attr('show-state', 'answer');
             $(cloze).html(answer);
-        } else if (displayOption == 'hint') {
+        } else if (displayOption == 'hint' || (displayOption == 'toggle' && $(cloze).attr('show-state') == 'answer')) {
             $(cloze).attr('show-state', 'hint');
+            hint = '&nbsp;&nbsp;[&nbsp;&nbsp;' + hint + '&nbsp;&nbsp;]&nbsp;&nbsp;';
             $(cloze).html(hint);
-        } else if (displayOption == 'toggle') {
-            if ($(cloze).attr('show-state') == 'hint') {
-                $(cloze).attr('show-state', 'answer');
-                $(cloze).html(answer);
-            } else {
-                $(cloze).attr('show-state', 'hint');
-                $(cloze).html(hint);
-            };
-        };
+        }
 
         // rerun mathjax on the document so that the cloze text gets formatted
         // ... for MathJax 2

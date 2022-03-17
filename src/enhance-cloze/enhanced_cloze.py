@@ -267,26 +267,41 @@ def add_or_update_model():
             new_front = f"{cur_before_sep}{seperator}{incoming_after_sep}"
             new_front = set_version(new_front, incoming_version())
             new_front = maybe_add_config_option(
-                new_front, "var animateScroll = true", "scrollToClozeOnToggle"
+                new_front,
+                "animateScroll",
+                "var animateScroll = true",
+                "scrollToClozeOnToggle",
+            )
+            new_front = maybe_add_config_option(
+                new_front,
+                "showHintsForPseudoClozes",
+                "var showHintsForPseudoClozes = true",
+                "animateScroll",
             )
             model["tmpls"][0]["qfmt"] = new_front
 
         mw.col.models.update(model)
 
 
-def maybe_add_config_option(front: str, to_be_added: str, previous_option: str) -> str:
+def maybe_add_config_option(
+    front: str, option_name: str, line_to_be_added: str, previous_option_name: str
+) -> str:
     # hacky way to add options to the CONFIG, the CONFIG being the section of the front template
     # before the <!-- CONFIG END --> comment
     # the text in to be added will be added after previous_option where previous_option
     # is the name of a configuration variable
+
+    assert option_name in line_to_be_added
+
     config_m = re.search("([\w\W]*?)<!-- CONFIG END -->", front)
     config_str = config_m.group(1)
-    if re.search(f"var +{to_be_added} +=", config_str):
+
+    if option_name in config_str:
         return front
 
     new_config_str = re.sub(
-        f"(?<=\n)(.+)(var +{previous_option}.+)\n",
-        rf"\1\2\n\1{to_be_added}\n",
+        f"(?<=\n)(.*)(var +{previous_option_name}.+)\n",
+        rf"\1\2\n\1{line_to_be_added}\n",
         config_str,
     )
     result = f"{new_config_str}{front[len(config_str) :]}"
