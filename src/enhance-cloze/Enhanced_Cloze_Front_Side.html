@@ -1,4 +1,4 @@
-<!-- VERSION 1.4 -->
+<!-- VERSION 1.5 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -161,12 +161,12 @@
         if ($('.genuine-cloze').length != 0) {
             maybeScrollToCloze($('.genuine-cloze').first().get(0));
         }
-        // this is probably needed so that touch to reveal works on iOS, see here: https://stackoverflow.com/a/15096054
+
         $('.pseudo-cloze').css('cursor', 'pointer')
         $('.genuine-cloze').css('cursor', 'pointer')
         $('#show-one-cloze-left').css('cursor', 'pointer')
         $('#show-one-cloze-right').css('cursor', 'pointer')
-
+    
         // this prevents the blue selection briefly showing up on mobile when tapping on a cloze
         $('.pseudo-cloze').addClass('disable-select')
         $('.genuine-cloze').addClass('disable-select')
@@ -189,22 +189,41 @@
         if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
             firstTimeLoadingEnhancedCloze = false
 
-            // simply doing for example "$(.pseudo-cloze).click()" doesn't work on iOS
-            $(document).on('click', '.pseudo-cloze', function (event) {
-                toggleCloze(event.target, 'toggle');
-            });
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                $(document).on('touchstart', '.pseudo-cloze', function (event) {
+                    toggleCloze(event.target, 'toggle');
+                });
 
-            $(document).on('click', '.genuine-cloze', function (event) {
-                toggleCloze(event.target, 'toggle');
-            });
+                $(document).on('touchstart', '.genuine-cloze', function (event) {
+                    toggleCloze(event.target, 'toggle');
+                });
 
-            $(document).on('click', '#show-one-cloze-left', function (event) {
-                revealOneClozeOfAType("genuine");
-            });
+                $(document).on('touchstart', '#show-one-cloze-left', function (event) {
+                    revealOneClozeOfAType("genuine");
+                });
 
-            $(document).on('click', '#show-one-cloze-right', function (event) {
-                revealOneClozeOfAType("pseudo");
-            });
+                $(document).on('touchstart', '#show-one-cloze-right', function (event) {
+                    revealOneClozeOfAType("pseudo");
+                });
+
+            } else {
+                // simply doing for example "$(.pseudo-cloze).click()" doesn't work on iOS
+                $(document).on('click touchstart', '.pseudo-cloze', function (event) {
+                    toggleCloze(event.target, 'toggle');
+                });
+
+                $(document).on('click', '.genuine-cloze', function (event) {
+                    toggleCloze(event.target, 'toggle');
+                });
+
+                $(document).on('click', '#show-one-cloze-left', function (event) {
+                    revealOneClozeOfAType("genuine");
+                });
+
+                $(document).on('click', '#show-one-cloze-right', function (event) {
+                    revealOneClozeOfAType("pseudo");
+                });
+            }
         }
 
         // defines enhancedClozeAddEventListener
