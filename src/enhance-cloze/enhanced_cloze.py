@@ -106,6 +106,7 @@ def on_profile_did_open():
 
         sync_did_finish.append(fn)
 
+
 profile_did_open.append(on_profile_did_open)
 
 
@@ -131,6 +132,7 @@ def add_reset_notetype_action_to_menu():
         mw.col.models.update(default_model)
 
     action.triggered.connect(on_triggered)
+
 
 main_window_did_init.append(add_reset_notetype_action_to_menu)
 
@@ -361,17 +363,6 @@ def load_enhanced_cloze(note_type: "NotetypeDict"):
     note_type["tmpls"][0]["qfmt"] = front
     note_type["tmpls"][0]["afmt"] = back
     note_type["css"] = styling
-
-    jsToCopy = [
-        "_Autolinker.min.js",
-        "_jquery.hotkeys.js",
-        "_jquery.visible.min.js",
-    ]
-    for file in jsToCopy:
-        currentfile = os.path.abspath(__file__)
-        folder = os.path.basename(os.path.dirname(currentfile))
-        file = os.path.join(mw.pm.addonFolder(), folder, file)
-        copy(file, mw.col.media.dir())
 
 
 def make_cloze_shortcut_start_at_cloze1(shortcuts, editor):
