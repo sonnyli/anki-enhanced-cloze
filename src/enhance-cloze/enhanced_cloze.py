@@ -19,9 +19,13 @@ from anki import version as anki_version  # type: ignore
 from anki.hooks import note_will_flush
 from aqt import Qt, mw
 from aqt.editor import Editor
-from aqt.gui_hooks import (add_cards_will_add_note, editor_did_init_shortcuts,
-                           main_window_did_init, profile_did_open,
-                           sync_did_finish)
+from aqt.gui_hooks import (
+    add_cards_will_add_note,
+    editor_did_init_shortcuts,
+    main_window_did_init,
+    profile_did_open,
+    sync_did_finish,
+)
 from aqt.qt import *
 from aqt.utils import askUser, tr
 
@@ -90,7 +94,6 @@ note_will_flush.append(maybe_fill_in_or_remove_cloze99)
 def on_profile_did_open():
     add_compatibilty_aliases()
 
-
     if not mw.can_auto_sync():
         add_or_update_model()
     else:
@@ -102,7 +105,7 @@ def on_profile_did_open():
             sync_did_finish.remove(fn)
 
         sync_did_finish.append(fn)
-        
+
 profile_did_open.append(on_profile_did_open)
 
 
@@ -189,10 +192,11 @@ else:
     original_fields_check = notes.Note.fields_check
 
     def new_fields_check(self):
-        if mw.col.models.get(self.mid)["name"] != MODEL_NAME:
-            return
-
         result = original_fields_check(self)
+
+        if mw.col.models.get(self.mid)["name"] != MODEL_NAME:
+            return result
+
         if result == NoteFieldsCheckResult.MISSING_CLOZE:
             return None
         return result
