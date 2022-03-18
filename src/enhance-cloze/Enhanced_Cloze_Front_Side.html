@@ -15,7 +15,6 @@
 
 <div id="card-body">
     <div id="main-section" class="content">
-        </span>
         <!-- this element will contain the actual content - the enhanced clozes -->
         <span id="enhanced-clozes"></span>
     </div>
@@ -167,6 +166,25 @@
         $('.genuine-cloze').css('cursor', 'pointer')
         $('#show-one-cloze-left').css('cursor', 'pointer')
         $('#show-one-cloze-right').css('cursor', 'pointer')
+
+        // this prevents the blue selection briefly showing up on mobile when tapping on a cloze
+        $('.pseudo-cloze').addClass('disable-select')
+        $('.genuine-cloze').addClass('disable-select')
+        $('#show-one-cloze-left').addClass('disable-select')
+        $('#show-one-cloze-right').addClass('disable-select')
+
+
+        // this css is also in the css file, but inserting the css here is easier than updating the css file for all users
+        // duplicate css for this should not be a problem
+        mainSection = document.getElementById("main-section")
+        style = document.createElement("style")
+        style.innerHTML = `
+            .disable-select {
+                -webkit-touch-callout: none;
+                user-select: none;
+            }
+        `
+        mainSection.insertBefore(style, mainSection.children[0])
 
         if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
             firstTimeLoadingEnhancedCloze = false

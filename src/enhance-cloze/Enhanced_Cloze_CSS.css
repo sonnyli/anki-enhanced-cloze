@@ -1,6 +1,6 @@
 #card-body {
     font: 17px/1.65em 'Avenir Next';
-    text-align: justify; 
+    text-align: justify;
     margin-top: 50px;
     margin-bottom: 60px;
 }
@@ -147,4 +147,9 @@ var,
 samp,
 tt {
     background-color: #fdf3d6;
+}
+
+.disable-select {
+    -webkit-touch-callout: none;
+    user-select: none;
 }
