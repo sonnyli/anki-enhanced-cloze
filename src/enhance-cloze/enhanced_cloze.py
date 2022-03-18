@@ -19,12 +19,9 @@ from anki import version as anki_version  # type: ignore
 from anki.hooks import note_will_flush
 from aqt import Qt, mw
 from aqt.editor import Editor
-from aqt.gui_hooks import (
-    add_cards_will_add_note,
-    editor_did_init_shortcuts,
-    main_window_did_init,
-    sync_did_finish,
-)
+from aqt.gui_hooks import (add_cards_will_add_note, editor_did_init_shortcuts,
+                           main_window_did_init, profile_did_open,
+                           sync_did_finish)
 from aqt.qt import *
 from aqt.utils import askUser, tr
 
@@ -93,7 +90,6 @@ note_will_flush.append(maybe_fill_in_or_remove_cloze99)
 def on_profile_did_open():
     add_compatibilty_aliases()
 
-    add_reset_notetype_action_to_menu()
 
     if not mw.can_auto_sync():
         add_or_update_model()
@@ -106,9 +102,8 @@ def on_profile_did_open():
             sync_did_finish.remove(fn)
 
         sync_did_finish.append(fn)
-
-
-main_window_did_init.append(on_profile_did_open)
+        
+profile_did_open.append(on_profile_did_open)
 
 
 def add_reset_notetype_action_to_menu():
@@ -133,6 +128,8 @@ def add_reset_notetype_action_to_menu():
         mw.col.models.update(default_model)
 
     action.triggered.connect(on_triggered)
+
+main_window_did_init.append(add_reset_notetype_action_to_menu)
 
 
 # prevent warnings about clozes
