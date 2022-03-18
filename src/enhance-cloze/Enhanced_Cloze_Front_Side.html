@@ -334,6 +334,8 @@
 
     function toggleCloze(elem, displayOption) {
 
+        if (elem == null) return
+
         // if the element is not a cloze get its ancestor cloze
         if (elem.classList.contains("genuine-cloze") || elem.classList.contains("pseudo-cloze"))
             cloze = elem
