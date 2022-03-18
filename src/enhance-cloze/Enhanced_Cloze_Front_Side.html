@@ -166,7 +166,7 @@
         $('.genuine-cloze').css('cursor', 'pointer')
         $('#show-one-cloze-left').css('cursor', 'pointer')
         $('#show-one-cloze-right').css('cursor', 'pointer')
-    
+
         // this prevents the blue selection briefly showing up on mobile when tapping on a cloze
         $('.pseudo-cloze').addClass('disable-select')
         $('.genuine-cloze').addClass('disable-select')
@@ -265,7 +265,7 @@
                 console.log(`clozeType has unexpected value: ${clozeType}`)
             }
 
-            if (!$(`.${clozeType}-cloze[show-state="hint"`).length) {
+            if (!$(`.${clozeType}-cloze[show-state="hint"]`).length) {
                 $('#no-more-cloze').animate({
                     display: "toggle",
                 }, 500);
