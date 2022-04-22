@@ -1,4 +1,4 @@
-<!-- VERSION 1.5 -->
+<!-- VERSION 1.6 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -17,6 +17,7 @@
     <div id="main-section" class="content">
         <!-- this element will contain the actual content - the enhanced clozes -->
         <span id="enhanced-clozes"></span>
+        <span style="display: none" id="edit-clozes">{{edit:cloze:Content}}</span>
     </div>
     <br>
     <br>
@@ -30,7 +31,7 @@
                 Note
             </div>
             <div id="note" class="content" style="display:none">
-                {{Note}}
+                {{edit:Note}}
             </div>
         </div>
         <br>
@@ -43,25 +44,25 @@
                 Mnemonics
             </div>
             <div id="mnemonics" class="content" style="display:none">
-                {{Mnemonics}}
+                {{edit:Mnemonics}}
             </div>
         </div>
         <br>
         <p class="" style="margin: 5.5px;"></p>
         {{/Mnemonics}}
 
-        {{#Extra}}
+        {{#Cloze99}}
         <div id="extra-section">
             <div id="extra-header" class="header header-yellow" onclick="showNextElement(this)">
                 Extra
             </div>
             <div id="extra" class="content" style="display:none">
-                {{Extra}}
+                {{Cloze99}}
             </div>
         </div>
         <br>
         <p class="" style="margin: 5.5px;"></p>
-        {{/Extra}}
+        {{/Cloze99}}
 
         <div id="info-section">
             <div id="info-header" class="header header-blue" onclick="showNextElement(this)">
@@ -92,7 +93,6 @@
 </div>
 
 <!-- ENHANCED_CLOZE -->
-<span style="display:none">{{cloze:Content}}</span>
 <span id="enhanced-cloze-content" style="display:none">{{Content}}</span>
 
 <script>
@@ -207,7 +207,6 @@
                 });
 
             } else {
-                // simply doing for example "$(.pseudo-cloze).click()" doesn't work on iOS
                 $(document).on('click touchstart', '.pseudo-cloze', function (event) {
                     toggleCloze(event.target, 'toggle');
                 });
@@ -259,6 +258,40 @@
                 toggleAllClozesOfAType("pseudo");
             }
         })
+
+        // compatibility with Edit Field During Review (Cloze)
+        $("#enhanced-clozes").off('click').on('click', function (event) {
+            if (document.getElementsByClassName("EFDRC-outline").length == 0) return
+            if (!ctrlDown) return
+            activateEditFieldDuringReview()
+        });
+
+        function activateEditFieldDuringReview() {
+            var enhancedClozesElm = document.getElementById("enhanced-clozes")
+            var editClozesElm = document.getElementById("edit-clozes")
+            if (["inline", ""].includes(enhancedClozesElm.style.display)) {
+                enhancedClozesElm.style.display = "none";
+                editClozesElm.style.display = "inline";
+            } else {
+                enhancedClozesElm.style.display = "inline";
+                editClozesElm.style.display = "none";
+            }
+            setTimeout(() => {
+                editable = editClozesElm.getElementsByClassName(
+                    "EFDRC-outline")[0]
+                editable.onfocus()
+                editable.focus()
+            })
+        }
+
+        ctrlDown = false;
+        window.enhancedClozeAddEventListener("keydown", function (ev) {
+            if (isCtrlKey(ev.code)) ctrlDown = true;
+        })
+        window.enhancedClozeAddEventListener("keyup", function (ev) {
+            if (isCtrlKey(ev.code)) ctrlDown = false;
+        })
+
 
         function revealOneClozeOfAType(clozeType) {
             if (!["genuine", "pseudo"].includes(clozeType)) {
@@ -361,6 +394,10 @@
             }.bind(window, ctrl, shift, alt, mainKey)
 
             return matchShortcut
+        }
+
+        const isCtrlKey = function (keycode) {
+            return ['ControlLeft', 'MetaLeft'].includes(keycode)
         }
 
     });
