@@ -35,19 +35,9 @@
     color: #f4b400;
 }
 
-.genuine-cloze {
-    border-bottom: 1px solid #ff5c82;
-    padding-bottom: 1px;
-}
-
 .genuine-cloze[show-state="hint"] {
     border-bottom: 2px solid #ff5c82;
     background-color: #ff96af;
-}
-
-.pseudo-cloze {
-    border-bottom: 1px solid #4285f4;
-    padding-bottom: 1px;
 }
 
 .pseudo-cloze[show-state="hint"] {
@@ -89,17 +79,6 @@
     top: 0;
     left: 0;
     background-color: transparent;
-}
-
-u {
-    color: #309bff;
-    border-bottom: 1px solid #0084ff;
-    text-decoration: none;
-}
-
-a {
-    color: #444444;
-    word-wrap: break-word;
 }
 
 .mobile ol,

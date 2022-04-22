@@ -11,7 +11,6 @@
 import os
 import re
 from copy import deepcopy
-from shutil import copy
 from typing import Optional, Tuple
 
 from anki import notes
@@ -280,6 +279,18 @@ def add_or_update_model():
                 "showHintsForPseudoClozes",
                 "var showHintsForPseudoClozes = true",
                 "animateScroll",
+            )
+            new_front = maybe_add_config_option(
+                new_front,
+                "underlineRevealedPseudoClozes",
+                "var underlineRevealedPseudoClozes = true",
+                "showHintsForPseudoClozes",
+            )
+            new_front = maybe_add_config_option(
+                new_front,
+                "underlineRevealedGenuineClozes",
+                "var underlineRevealedGenuineClozes = true",
+                "underlineRevealedPseudoClozes",
             )
             model["tmpls"][0]["qfmt"] = new_front
 

@@ -3,6 +3,8 @@
     var scrollToClozeOnToggle = true
     var animateScroll = true
     var showHintsForPseudoClozes = true
+    var underlineRevealedPseudoClozes = false
+    var underlineRevealedGenuineClozes = true
 
     // Shortcut options
     var revealNextGenuineClozeShortcut = "J"
@@ -174,20 +176,10 @@
         $('#show-one-cloze-right').addClass('disable-select')
 
 
-        // this css is also in the css file, but inserting the css here is easier than updating the css file for all users
-        // duplicate css for this should not be a problem
-        mainSection = document.getElementById("main-section")
-        style = document.createElement("style")
-        style.innerHTML = `
-            .disable-select {
-                -webkit-touch-callout: none;
-                user-select: none;
-            }
-        `
-        mainSection.insertBefore(style, mainSection.children[0])
-
         if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
             firstTimeLoadingEnhancedCloze = false
+
+            insertStyling()
 
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                 $(document).on('touchstart', '.pseudo-cloze', function (event) {
@@ -224,6 +216,37 @@
                 });
             }
         }
+
+        function insertStyling() {
+            mainSection = document.getElementById("main-section")
+            style = document.createElement("style")
+
+            // this css is also in the css file, but inserting the css here is easier than updating the css file for all users
+            style.innerHTML = `
+                .disable-select {
+                    -webkit-touch-callout: none;
+                    user-select: none;
+                }
+            `
+
+            if (underlineRevealedPseudoClozes) {
+                style.innerHTML += `
+                .pseudo-cloze {
+                    border-bottom: 1px solid #4285f4;
+                    padding-bottom: 1px;
+                }`
+            }
+            if (underlineRevealedGenuineClozes) {
+                style.innerHTML += `
+                .genuine-cloze {
+                    border-bottom: 1px solid #ff5c82;
+                    padding-bottom: 1px;
+                }`
+            }
+            mainSection.insertBefore(style, mainSection.children[0])
+        }
+
+
 
         // defines enhancedClozeAddEventListener
         // this function is almost identical to `document.addEventListener`
