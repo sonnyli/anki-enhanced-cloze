@@ -19,7 +19,6 @@
     <div id="main-section" class="content">
         <!-- this element will contain the actual content - the enhanced clozes -->
         <span id="enhanced-clozes"></span>
-        <span style="display: none" id="edit-clozes">{{edit:cloze:Content}}</span>
     </div>
     <br>
     <br>
@@ -96,6 +95,10 @@
 
 <!-- ENHANCED_CLOZE -->
 <span id="enhanced-cloze-content" style="display:none">{{Content}}</span>
+<span style="display:none;" id="edit-clozes">{{edit:cloze:Content}}</span>
+
+<!-- this needs to exist so that Anki does not complain -->
+<span style="display:none">{{cloze:Content}}</span>
 
 <script>
     var enhancedClozesData = {
@@ -179,8 +182,6 @@
         if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
             firstTimeLoadingEnhancedCloze = false
 
-            insertStyling()
-
             if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                 $(document).on('touchstart', '.pseudo-cloze', function (event) {
                     toggleCloze(event.target, 'toggle');
@@ -217,11 +218,18 @@
             }
         }
 
+        moveEditClozesElm()
+        insertStyling()
+
+
         function insertStyling() {
+            if (document.getElementById("enhanced-clozes-style")) return;
+
             mainSection = document.getElementById("main-section")
             style = document.createElement("style")
 
             // this css is also in the css file, but inserting the css here is easier than updating the css file for all users
+            style.id = "enhanced-clozes-style"
             style.innerHTML = `
                 .disable-select {
                     -webkit-touch-callout: none;
@@ -282,7 +290,12 @@
             }
         })
 
-        // compatibility with Edit Field During Review (Cloze)
+
+        function moveEditClozesElm() {
+            var editClozesElm = document.getElementById("edit-clozes")
+            document.getElementById("main-section").appendChild(editClozesElm)
+        }
+
         $("#enhanced-clozes").off('click').on('click', function (event) {
             if (document.getElementsByClassName("EFDRC-outline").length == 0) return
             if (!ctrlDown) return
