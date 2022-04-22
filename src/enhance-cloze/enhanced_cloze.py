@@ -136,6 +136,25 @@ def add_reset_notetype_action_to_menu():
 main_window_did_init.append(add_reset_notetype_action_to_menu)
 
 
+def add_reset_css_action_to_menu():
+    menu: QMenu = mw.form.menuTools
+    action = menu.addAction("Reset Enhanced Cloze css to default")
+
+    def on_triggered():
+        current_model = mw.col.models.by_name(MODEL_NAME)
+        if not current_model:
+            add_or_update_model()
+            return
+
+        current_model["css"] = enhanced_cloze()["css"]
+        mw.col.models.update(current_model)
+
+    action.triggered.connect(on_triggered)
+
+
+main_window_did_init.append(add_reset_css_action_to_menu)
+
+
 # prevent warnings about clozes
 if ANKI_VERSION_TUPLE == (2, 1, 26):
     from anki.models import ModelManager
