@@ -1,10 +1,11 @@
-<!-- VERSION 1.6 -->
+<!-- VERSION 1.7 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
     var showHintsForPseudoClozes = true
     var underlineRevealedPseudoClozes = false
     var underlineRevealedGenuineClozes = true
+    var revealPseudoClozesByDefault = false
 
     // Shortcut options
     var revealNextGenuineClozeShortcut = "J"
@@ -186,7 +187,7 @@
                 firstTimeLoadingEnhancedCloze = false
 
                 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator
-                        .userAgent)) {
+                    .userAgent)) {
                     $(document).on('touchstart', '.pseudo-cloze', function (event) {
                         toggleCloze(event.target, 'toggle');
                     });
@@ -342,7 +343,7 @@
                 toggleCloze(elem, 'answer');
                 if (!isVisible(elem)) {
                     maybeScrollToCloze(elem);
-                } else {}
+                } else { }
                 $(elem).hide(0);
                 $(elem).fadeIn(500);
             }
@@ -362,7 +363,7 @@
         }
 
 
-        function defineEnhancedClozeAddEventListener(){
+        function defineEnhancedClozeAddEventListener() {
             // define enhancedClozeAddEventListener
             // this function is almost identical to `document.addEventListener`
             // but removes the event listener attached on previous card / front side
@@ -469,7 +470,7 @@
             hint = ""
         }
 
-        if (answer.startsWith('#')) {
+        if (revealPseudoClozesByDefault || answer.startsWith('#')) {
             answer = answer.slice(1)
 
             if ($(cloze).attr('class') == 'pseudo-cloze') {
@@ -492,11 +493,11 @@
         // ... for MathJax 2
         try {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-        } catch {}
+        } catch { }
         // ... for MathJax 3     
         try {
             MathJax.typesetPromise()
-        } catch {}
+        } catch { }
 
     }
 </script>
