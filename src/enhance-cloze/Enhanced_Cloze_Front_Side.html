@@ -1,4 +1,4 @@
-<!-- VERSION 1.7 -->
+<!-- VERSION 1.8 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -471,7 +471,9 @@
         }
 
         if (revealPseudoClozesByDefault || answer.startsWith('#')) {
-            answer = answer.slice(1)
+            if (answer.startsWith('#')) {
+                answer = answer.slice(1)
+            }
 
             if ($(cloze).attr('class') == 'pseudo-cloze') {
                 $(cloze).attr('show-state', 'answer');
