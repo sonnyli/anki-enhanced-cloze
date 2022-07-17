@@ -1,4 +1,4 @@
-<!-- VERSION 1.8 -->
+<!-- VERSION 1.9 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -53,18 +53,20 @@
         <p class="" style="margin: 5.5px;"></p>
         {{/Mnemonics}}
 
-        {{#Cloze99}}
+
+        {{#Extra}}
         <div id="extra-section">
             <div id="extra-header" class="header header-yellow" onclick="showNextElement(this)">
                 Extra
             </div>
             <div id="extra" class="content" style="display:none">
-                {{Cloze99}}
+                {{edit:Extra}}
             </div>
         </div>
         <br>
         <p class="" style="margin: 5.5px;"></p>
-        {{/Cloze99}}
+        {{/Extra}}
+
 
         <div id="info-section">
             <div id="info-header" class="header header-blue" onclick="showNextElement(this)">
