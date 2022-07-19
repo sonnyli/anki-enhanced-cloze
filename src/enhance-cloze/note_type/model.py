@@ -9,7 +9,7 @@ enhancedModel = {
         {"name": "Note",          "media": [], "sticky": False, "rtl": False, "ord": 1,  "font": "Arial", "size": 20},
         {"name": "Mnemonics",     "media": [], "sticky": False, "rtl": False, "ord": 2,  "font": "Arial", "size": 20},
         {"name": "Extra",         "media": [], "sticky": False, "rtl": False, "ord": 3,  "font": "Arial", "size": 20},
-        {"name": "Cloze99",       "media": [], "sticky": True, "rtl": False, "ord": 3,  "font": "Arial", "size": 1},
+        {"name": "Cloze99",       "media": [], "sticky": True, "rtl": False, "ord": 4,  "font": "Arial", "size": 1},
     ],
     "sortf":0,
     "tmpls": [
