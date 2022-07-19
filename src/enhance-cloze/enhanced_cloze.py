@@ -8,9 +8,9 @@
 #            (for the included js see the top of these files)
 
 
-import os
 import re
 from copy import deepcopy
+from pathlib import Path
 from typing import Optional, Tuple
 
 from anki import notes
@@ -29,7 +29,7 @@ from aqt.qt import *
 from aqt.utils import askUser, tr
 
 from .compat import add_compatibilty_aliases
-from .model import enhancedModel
+from .note_type.model import enhancedModel
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -46,6 +46,7 @@ def gc(arg, fail=False):
 
 MODEL_NAME = "Enhanced Cloze 2.1 v2"
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
+NOTE_TYPE_DIR = Path(__file__).parent / "note_type"
 
 UPDATE_MSG = f"""\
 Do you want to update the <b>{MODEL_NAME}</b> note type?<br><br>\
@@ -128,7 +129,8 @@ def add_reset_notetype_action_to_menu():
         default_model = enhanced_cloze()
         default_model["id"] = current_model["id"]
         default_model["usn"] = -1  # triggers full sync
-        mw.col.models.update(default_model)
+        changes = mw.col.models.update_dict(default_model)
+        print(changes)
 
     action.triggered.connect(on_triggered)
 
@@ -384,10 +386,9 @@ def enhanced_cloze() -> "NotetypeDict":
 
 
 def load_enhanced_cloze(note_type: "NotetypeDict"):
-    addon_path = os.path.dirname(__file__)
-    front_path = os.path.join(addon_path, "Enhanced_Cloze_Front_Side.html")
-    css_path = os.path.join(addon_path, "Enhanced_Cloze_CSS.css")
-    back_path = os.path.join(addon_path, "Enhanced_Cloze_Back_Side.html")
+    front_path = NOTE_TYPE_DIR / "Enhanced_Cloze_Front_Side.html"
+    css_path = NOTE_TYPE_DIR / "Enhanced_Cloze_CSS.css"
+    back_path = NOTE_TYPE_DIR / "Enhanced_Cloze_Back_Side.html"
 
     with open(front_path) as f:
         front = f.read()
