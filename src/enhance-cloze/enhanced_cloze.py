@@ -129,8 +129,7 @@ def add_reset_notetype_action_to_menu():
         default_model = enhanced_cloze()
         default_model["id"] = current_model["id"]
         default_model["usn"] = -1  # triggers full sync
-        changes = mw.col.models.update_dict(default_model)
-        print(changes)
+        mw.col.models.update_dict(default_model)
 
     action.triggered.connect(on_triggered)
 
