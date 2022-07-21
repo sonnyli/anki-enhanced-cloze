@@ -2,7 +2,7 @@ import aqt
 from anki import notes
 
 
-def add_compatibilty_aliases():
+def add_compatibility_aliases():
     add_compatibility_alias(
         notes.Note,
         "note_type",
