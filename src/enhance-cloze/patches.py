@@ -11,7 +11,9 @@ def setup_prevent_warnings_about_clozes():
     if ANKI_VERSION_TUPLE == (2, 1, 26):
         from anki.models import ModelManager
 
-        original_availableClozeOrds = ModelManager._availClozeOrds
+        original_availableClozeOrds = (
+            ModelManager._availClozeOrds  # pylint: disable=protected-access
+        )
 
         def new_availClozeOrds(self, m, flds: str, allowEmpty: bool = True):
             if m["name"] != MODEL_NAME:
@@ -20,7 +22,9 @@ def setup_prevent_warnings_about_clozes():
             # the exact value is not important, it has to be an non-empty array
             return [0]
 
-        ModelManager._availClozeOrds = new_availClozeOrds
+        ModelManager._availClozeOrds = (  # pylint: disable=protected-access
+            new_availClozeOrds
+        )
     elif ANKI_VERSION_TUPLE < (2, 1, 45):
 
         original_cloze_numbers_in_fields = Note.cloze_numbers_in_fields
@@ -32,11 +36,15 @@ def setup_prevent_warnings_about_clozes():
             # the exact value is not important, it has to be an non-empty array
             return [0]
 
-        Note.cloze_numbers_in_fields = new_cloze_numbers_in_fields
+        Note.cloze_numbers_in_fields = (  # pylint: disable=protected-access
+            new_cloze_numbers_in_fields
+        )
     else:
         from anki.notes import NoteFieldsCheckResult
 
-        original_update_duplicate_display = Editor._update_duplicate_display
+        original_update_duplicate_display = (
+            Editor._update_duplicate_display  # pylint: disable=protected-access
+        )
 
         def _update_duplicate_display_ignore_cloze_problems_for_enh_clozes(
             self, result
@@ -48,7 +56,7 @@ def setup_prevent_warnings_about_clozes():
                     result = NoteFieldsCheckResult.NORMAL
             original_update_duplicate_display(self, result)
 
-        Editor._update_duplicate_display = (
+        Editor._update_duplicate_display = (  # pylint: disable=protected-access
             _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
         )
 

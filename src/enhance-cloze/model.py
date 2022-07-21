@@ -10,8 +10,8 @@ from .constants import MODEL_NAME, NOTE_TYPE_DIR, UPDATE_MSG
 from .note_type.model import enhancedModel
 
 try:
-    from aqt.models import NotetypeDict
-except:
+    from aqt.models import NotetypeDict  # pylint: disable = unused-import
+except:  # noqa
     pass
 
 from .compat import add_compatibility_aliases
@@ -125,7 +125,7 @@ def maybe_add_config_option(
 
     assert option_name in line_to_be_added
 
-    config_m = re.search("([\w\W]*?)<!-- CONFIG END -->", front)
+    config_m = re.search(r"([\w\W]*?)<!-- CONFIG END -->", front)
     config_str = config_m.group(1)
 
     if option_name in config_str:

@@ -5,7 +5,6 @@ from aqt.editor import Editor
 from aqt.gui_hooks import editor_did_init_shortcuts
 from aqt.qt import Qt
 
-from .compat import add_compatibility_aliases
 from .constants import ANKI_VERSION_TUPLE, MODEL_NAME
 
 

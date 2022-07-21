@@ -23,7 +23,9 @@ def add_reset_notetype_action_to_menu(menu: QMenu):
     def on_triggered():
 
         if not askUser(
-            "This will reset the Enhanced Cloze note type to its default version.\n\nNote: After doing this the next you time you synchronize Anki will require a full sync to AnkiWeb.\n\nContinue?",
+            "This will reset the Enhanced Cloze note type to its default version.\n\n"
+            "Note: After doing this the next you time you synchronize Anki will require a full sync to AnkiWeb.\n\n"
+            "Continue?",
         ):
             return
 

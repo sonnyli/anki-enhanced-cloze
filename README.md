@@ -1,5 +1,5 @@
 # Enhanced cloze 2.1
-This add-on allows to improve clozes usage. See the [AnkiWeb page](https://ankiweb.net/shared/info/1990296174) for more details. 
+This add-on allows to improve clozes usage. See the [AnkiWeb page](https://ankiweb.net/shared/info/1990296174) for more details.
 
 
 ## Links, licence and credits

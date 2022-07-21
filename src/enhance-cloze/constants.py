@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from anki import version as anki_version  # type: ignore
+from anki import version as anki_version  # pylint: disable=no-name-in-module
 
 MODEL_NAME = "Enhanced Cloze 2.1 v2"
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))
@@ -20,14 +20,17 @@ The changes include:
 <li>Shift+N     - Toggle All Pseudo Clozes</li>
 </ul>
 <li>A new option to disable scrolling to a cloze when it is revealed</li>
-<li>All Cloze1, Cloze2, ... fields except for Cloze99 are not longer necessary and were removed (also the data field)</li>
+<li>All Cloze1, Cloze2, ... fields except for Cloze99 are not longer necessary and were removed \
+(also the data field)</li>
 <li>Some fixes</li>
 </ul>
 
 This will require a full sync to AnkiWeb (if you use synchronization).<br><br>
 
-If you have made changes to the note type and don\'t want to loose them you can duplicate the note type first (Tools->Manage Note Types->Add).
+If you have made changes to the note type and don\'t want to loose them you can duplicate the note type first \
+(Tools->Manage Note Types->Add).
 <br><br>
-If you don't want to update you can get the previous version of the add-on from <a href="https://github.com/RisingOrange/anki-enhanced-cloze/releases/tag/1.1.4">here</a>.
+If you don't want to update you can get the previous version of the add-on from \
+<a href="https://github.com/RisingOrange/anki-enhanced-cloze/releases/tag/1.1.4">here</a>.
 <br><br>
 <b>Note:</b> If you choose "No" this notice will show up the next time you open Anki."""

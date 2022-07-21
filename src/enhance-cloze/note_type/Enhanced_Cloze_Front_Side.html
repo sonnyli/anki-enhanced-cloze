@@ -125,7 +125,7 @@
 
             var content = document.getElementById("enhanced-cloze-content").innerHTML
 
-            // the extra (?:) at the beginning is there so that Anki doesn't think this is a field 
+            // the extra (?:) at the beginning is there so that Anki doesn't think this is a field
             var clozeRe = /{(?:){c(\d+)::([\W\w]*?)(?:::([\W\w]*?))?}}/g
 
             // fill enhancedClozesData
@@ -498,7 +498,7 @@
         try {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         } catch { }
-        // ... for MathJax 3     
+        // ... for MathJax 3
         try {
             MathJax.typesetPromise()
         } catch { }
