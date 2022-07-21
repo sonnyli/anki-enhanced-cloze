@@ -17,11 +17,6 @@ except:  # noqa
 from .compat import add_compatibility_aliases
 
 
-def check_note_type(note_type: "NotetypeDict") -> bool:
-    """Whether this model is Enhanced cloze version 2.1"""
-    return bool(re.search(MODEL_NAME, note_type["name"]))
-
-
 def new_version_available():
     return current_version() is None or current_version() < incoming_version()
 
