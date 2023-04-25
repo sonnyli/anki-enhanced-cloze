@@ -1,4 +1,4 @@
-<!-- VERSION 1.9 -->
+<!-- VERSION 1.10 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -100,8 +100,11 @@
 <span id="enhanced-cloze-content" style="display:none">{{Content}}</span>
 <span style="display:none;" id="edit-clozes">{{edit:cloze:Content}}</span>
 
-<!-- this needs to exist so that Anki does not complain -->
+<!-- prevent Anki from complaining about clozes not being used as clozes -->
 <span style="display:none">{{cloze:Content}}</span>
+
+<!-- fix no-cloze-basic-mode cards on AnkiDroid, without this AnkiDroid says that clozes are missing -->
+<span style="display:none">{{cloze:Cloze99}}</span>
 
 <script>
     var enhancedClozesData = {
