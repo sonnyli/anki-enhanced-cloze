@@ -104,6 +104,12 @@ def add_or_update_model() -> None:
                 "var revealPseudoClozesByDefault = false",
                 "underlineRevealedGenuineClozes",
             )
+            new_front = maybe_add_config_option(
+                new_front,
+                "swapLeftAndRightBorderActions",
+                "var swapLeftAndRightBorderActions = false",
+                "revealPseudoClozesByDefault",
+            )
             model["tmpls"][0]["qfmt"] = new_front
 
         mw.col.models.update(model)

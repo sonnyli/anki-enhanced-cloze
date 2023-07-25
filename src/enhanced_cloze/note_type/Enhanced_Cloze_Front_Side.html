@@ -1,4 +1,4 @@
-<!-- VERSION 1.10 -->
+<!-- VERSION 1.11 -->
 <script>
     var scrollToClozeOnToggle = true
     var animateScroll = true
@@ -6,6 +6,7 @@
     var underlineRevealedPseudoClozes = false
     var underlineRevealedGenuineClozes = true
     var revealPseudoClozesByDefault = false
+    var swapLeftAndRightBorderActions = false
 
     // Shortcut options
     var revealNextGenuineClozeShortcut = "J"
@@ -202,13 +203,12 @@
                     });
 
                     $(document).on('touchstart', '#show-one-cloze-left', function (event) {
-                        revealOneClozeOfAType("genuine");
+                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
                     });
 
                     $(document).on('touchstart', '#show-one-cloze-right', function (event) {
-                        revealOneClozeOfAType("pseudo");
+                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
                     });
-
                 } else {
                     $(document).on('click touchstart', '.pseudo-cloze', function (event) {
                         toggleCloze(event.target, 'toggle');
@@ -219,11 +219,11 @@
                     });
 
                     $(document).on('click', '#show-one-cloze-left', function (event) {
-                        revealOneClozeOfAType("genuine");
+                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
                     });
 
                     $(document).on('click', '#show-one-cloze-right', function (event) {
-                        revealOneClozeOfAType("pseudo");
+                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
                     });
                 }
             }
