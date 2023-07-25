@@ -1,0 +1,6 @@
+[tool.mypy]
+files=[
+    "src/enhanced_cloze",
+]
+no_strict_optional = true
+check_untyped_defs = true

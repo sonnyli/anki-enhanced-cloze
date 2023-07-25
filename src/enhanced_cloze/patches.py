@@ -22,7 +22,7 @@ def setup_prevent_warnings_about_clozes() -> None:
             # the exact value is not important, it has to be an non-empty array
             return [0]
 
-        ModelManager._availClozeOrds = (  # pylint: disable=protected-access
+        ModelManager._availClozeOrds = (  # type: ignore  # pylint: disable=protected-access
             new_availClozeOrds
         )
     elif ANKI_VERSION_TUPLE < (2, 1, 45):
@@ -35,7 +35,7 @@ def setup_prevent_warnings_about_clozes() -> None:
             # the exact value is not important, it has to be an non-empty array
             return [0]
 
-        Note.cloze_numbers_in_fields = (  # pylint: disable=protected-access
+        Note.cloze_numbers_in_fields = (  # type: ignore # pylint: disable=protected-access
             new_cloze_numbers_in_fields
         )
     else:
@@ -55,7 +55,7 @@ def setup_prevent_warnings_about_clozes() -> None:
                     result = NoteFieldsCheckResult.NORMAL
             original_update_duplicate_display(self, result)
 
-        Editor._update_duplicate_display = (  # pylint: disable=protected-access
+        Editor._update_duplicate_display = (  # type: ignore  # pylint: disable=protected-access
             _update_duplicate_display_ignore_cloze_problems_for_enh_clozes
         )
 
@@ -86,4 +86,4 @@ def setup_prevent_warnings_about_clozes() -> None:
             else:
                 return result
 
-        Note.fields_check = new_fields_check
+        Note.fields_check = new_fields_check  # type: ignore

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from anki import version as anki_version  # pylint: disable=no-name-in-module
+from anki.buildinfo import version as anki_version
 
 MODEL_NAME = "Enhanced Cloze 2.1 v2"
 ANKI_VERSION_TUPLE = tuple(int(i) for i in anki_version.split("."))

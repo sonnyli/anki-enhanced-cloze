@@ -21,15 +21,15 @@ def new_version_available() -> bool:
     return current_version() is None or current_version() < incoming_version()
 
 
-def current_version() -> Optional[Tuple[int]]:
+def current_version() -> Optional[Tuple[int, ...]]:
     return version(mw.col.models.by_name(MODEL_NAME))
 
 
-def incoming_version() -> Optional[Tuple[int]]:
+def incoming_version() -> Optional[Tuple[int, ...]]:
     return version(enhanced_cloze())
 
 
-def version(note_type: "NotetypeDict") -> Optional[Tuple[int]]:
+def version(note_type: "NotetypeDict") -> Optional[Tuple[int, ...]]:
     front = note_type["tmpls"][0]["qfmt"]
     m = re.match("<!-- VERSION (.+?) -->", front)
     if not m:
@@ -38,7 +38,7 @@ def version(note_type: "NotetypeDict") -> Optional[Tuple[int]]:
     return tuple(map(int, m.group(1).split(".")))
 
 
-def set_version(front: str, version: Tuple[int]) -> str:
+def set_version(front: str, version: Tuple[int, ...]) -> str:
     return re.sub(
         "<!-- VERSION (.+?) -->",
         f"<!-- VERSION {'.'.join(map(str, version))} -->",
