@@ -17,11 +17,10 @@ from .constants import MODEL_NAME
 from .model import add_or_update_model, enhanced_cloze
 
 
-def add_reset_notetype_action_to_menu(menu: QMenu):
+def add_reset_notetype_action_to_menu(menu: QMenu) -> None:
     action = menu.addAction("Reset Enhanced Cloze note type to default")
 
     def on_triggered():
-
         if not askUser(
             "This will reset the Enhanced Cloze note type to its default version.\n\n"
             "Note: After doing this the next you time you synchronize Anki will require a full sync to AnkiWeb.\n\n"
@@ -42,11 +41,10 @@ def add_reset_notetype_action_to_menu(menu: QMenu):
     action.triggered.connect(on_triggered)
 
 
-def add_reset_css_action_to_menu(menu: QMenu):
+def add_reset_css_action_to_menu(menu: QMenu) -> None:
     action = menu.addAction("Reset Enhanced Cloze css to default")
 
-    def on_triggered():
-
+    def on_triggered() -> None:
         if not askUser(
             "This will reset the styling (css) of the Enhanced Cloze note type to its default version.\n\nContinue?"
         ):
@@ -63,7 +61,7 @@ def add_reset_css_action_to_menu(menu: QMenu):
     action.triggered.connect(on_triggered)
 
 
-def setup_enhanced_cloze_menu():
+def setup_enhanced_cloze_menu() -> None:
     def on_main_window_did_init():
         menu: QMenu = mw.form.menuTools
         submenu = menu.addMenu("Enhanced Cloze")

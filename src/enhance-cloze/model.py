@@ -17,7 +17,7 @@ except:  # noqa
 from .compat import add_compatibility_aliases
 
 
-def new_version_available():
+def new_version_available() -> bool:
     return current_version() is None or current_version() < incoming_version()
 
 
@@ -46,12 +46,11 @@ def set_version(front: str, version: Tuple[int]) -> str:
     )
 
 
-def add_or_update_model():
+def add_or_update_model() -> None:
     model = mw.col.models.by_name(MODEL_NAME)
     if not model:
         mw.col.models.add(enhanced_cloze())
     else:
-
         if not new_version_available():
             return
 
@@ -135,7 +134,7 @@ def maybe_add_config_option(
     return result
 
 
-def update_from_unnamed_version():
+def update_from_unnamed_version() -> None:
     if not askUser(
         title="Enhanced Cloze",
         text=UPDATE_MSG,
@@ -171,7 +170,7 @@ def enhanced_cloze() -> "NotetypeDict":
     return result
 
 
-def load_enhanced_cloze(note_type: "NotetypeDict"):
+def load_enhanced_cloze(note_type: "NotetypeDict") -> None:
     front_path = NOTE_TYPE_DIR / "Enhanced_Cloze_Front_Side.html"
     css_path = NOTE_TYPE_DIR / "Enhanced_Cloze_CSS.css"
     back_path = NOTE_TYPE_DIR / "Enhanced_Cloze_Back_Side.html"
@@ -188,7 +187,7 @@ def load_enhanced_cloze(note_type: "NotetypeDict"):
     note_type["css"] = styling
 
 
-def setup_maybe_update_model_on_startup():
+def setup_maybe_update_model_on_startup() -> None:
     def on_profile_did_open():
         add_compatibility_aliases()
 

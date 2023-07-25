@@ -7,7 +7,7 @@ from aqt.utils import tr
 from .constants import ANKI_VERSION_TUPLE, MODEL_NAME
 
 
-def setup_prevent_warnings_about_clozes():
+def setup_prevent_warnings_about_clozes() -> None:
     if ANKI_VERSION_TUPLE == (2, 1, 26):
         from anki.models import ModelManager
 
@@ -26,7 +26,6 @@ def setup_prevent_warnings_about_clozes():
             new_availClozeOrds
         )
     elif ANKI_VERSION_TUPLE < (2, 1, 45):
-
         original_cloze_numbers_in_fields = Note.cloze_numbers_in_fields
 
         def new_cloze_numbers_in_fields(self):

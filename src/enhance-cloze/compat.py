@@ -2,7 +2,7 @@ import aqt
 from anki import notes
 
 
-def add_compatibility_aliases():
+def add_compatibility_aliases() -> None:
     add_compatibility_alias(
         notes.Note,
         "note_type",
@@ -16,7 +16,7 @@ def add_compatibility_aliases():
     add_compatibility_alias(aqt.mw.col, "find_notes", "findNotes")
 
 
-def add_compatibility_alias(namespace, new_name, old_name):
+def add_compatibility_alias(namespace, new_name: str, old_name: str) -> bool:
     if new_name not in dir(namespace):
         setattr(namespace, new_name, getattr(namespace, old_name))
         return True
