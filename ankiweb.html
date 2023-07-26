@@ -24,11 +24,11 @@ You can...
 - toggle all genuine clozes using the keyboard shortcut [Shift+J] (conifgurable) border.
 - toggle all pseudo clozes using the keyboard shortcut [Shift+N] (conifgurable) border.
 - This makes uncovering clozes super convenient, no matter whether it's on a computer using the keyboard or on a mobile phone.
-- You can edit the shortcut keys by editing the configuration section of the note type (top of the front card template).
+- You can edit the shortcut keys in the config (Tools -> Enhanced Cloze -> Config)
 
 Auto Scroll To The Relevant Cloze
 - The card will scroll to the first genuine cloze at the very beginning.
-- When you use shortcut to uncover clozes one by one, if the next cloze is out of view (common situation on mobile phones with small screen), the card will automatically scroll to it. This makes for a super fluent experience of answering cards. The behaviour can be turned off (by editing the configuration section of the note type).
+- When you use shortcut to uncover clozes one by one, if the next cloze is out of view (common situation on mobile phones with small screen), the card will automatically scroll to it. This makes for a super fluent experience of answering cards. The behaviour can be turned off (Tools -> Enhanced Cloze -> Config).
 
 Can Be Used In No-Cloze Basic Mode
 - It is also Ok to go without clozes using this note type. (Note: Creating such notes only works on Anki Desktop, not on mobile!) Just type the question in the Content field and the answer in the Note field. The Note field will be hidden on the front of the card and shown on the back of the card, just like with the Basic note type.
@@ -45,9 +45,8 @@ Can Be Used In No-Cloze Basic Mode
 - When you have the <a href="https://ankiweb.net/shared/info/385888438" rel="nofollow">Edit Field During Review (Cloze)</a> add-on installed, Ctrl+Click fields to edit them.
 
 <b>Configuration</b>
-<img src="https://raw.githubusercontent.com/RisingOrange/anki-enhanced-cloze/master/screenshots/configuration.png">
-You can configure the note type by editing the configuration section of the note type (top of the front card template).
-To open this dialog, select Tools -> Manage Note Types -> Enhanced Cloze 2.1 v2 -> Cards.
+<img src="https://raw.githubusercontent.com/RisingOrange/anki-enhanced-cloze/master/screenshots/configuration.png" height="600">
+To open this dialog, select Tools -> Enhanced Cloze -> Config.
 If the underline options do not work, try using "Reset Enhanced Clozes css to default" from the Tools menu of the main
 window.
 
@@ -61,6 +60,7 @@ Previous version of the add-on by Arthur Milchior: <a href="https://github.com/A
     rel="nofollow">https://github.com/Arthur-Milchior/anki-enhanced-cloze</a>
 Previous version of the add-on by LuZhe610: <a href="https://ankiweb.net/shared/info/873439973"
     rel="nofollow">https://ankiweb.net/shared/info/873439973</a>
+Thanks to BlueGreenMagick for creating the <a href="https://github.com/BlueGreenMagick/ankiaddonconfig">ankiaddonconfig</a> package used in this add-on.
 
 <b>Problems, Bugs, Errors, Improvements</b>
 If you have an idea for an improvement or encounter a problem please create an issue on <a
@@ -71,6 +71,7 @@ If this add-on is useful to you please consider buying me a coffee:
 <a href="https://www.buymeacoffee.com/jakubfidler" rel="nofollow"><img src="https://i.imgur.com/9bfEVZ6.jpg"></a>
 
 <b>Changelog</b>
+2023-07-26: Added config dialog (Tools -> Enhanced Cloze -> Config)
 2023-07-25: Added option to swap left and right border actions
 2023-04-26: Fix basic-mode clozes on AnkiDroid on Anki &gt;= 2.1.61
 2022-11-15: Fix incompatibility with CrowdAnki
