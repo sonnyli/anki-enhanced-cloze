@@ -1,11 +1,12 @@
 import re
 from copy import deepcopy
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 from aqt import mw
 from aqt.gui_hooks import profile_did_open, sync_did_finish
 from aqt.utils import askUser
 
+from .config import conf
 from .constants import MODEL_NAME, NOTE_TYPE_DIR, UPDATE_MSG
 from .note_type.model import enhancedModel
 
@@ -17,7 +18,26 @@ except:  # noqa
 from .compat import add_compatibility_aliases
 
 
-def new_version_available() -> bool:
+def setup_maybe_update_model_on_startup() -> None:
+    def on_profile_did_open():
+        add_compatibility_aliases()
+
+        if not mw.can_auto_sync():
+            add_or_update_model()
+        else:
+            # add the function to the sync_did_finish hook
+            # and remove it from the hook after sync
+            # so it only gets called on the auto sync on opening Anki
+            def fn():
+                add_or_update_model()
+                sync_did_finish.remove(fn)
+
+            sync_did_finish.append(fn)
+
+    profile_did_open.append(on_profile_did_open)
+
+
+def _new_version_available() -> bool:
     return current_version() is None or current_version() < incoming_version()
 
 
@@ -50,69 +70,70 @@ def add_or_update_model() -> None:
     model = mw.col.models.by_name(MODEL_NAME)
     if not model:
         mw.col.models.add(enhanced_cloze())
+        return
+
+    if not _new_version_available():
+        return
+
+    if current_version() is None:
+        update_from_unnamed_version()
+        return
+
+    # update the code part, the version number and the config on the front template, keep the rest as it is
+    # so that users can customize the other parts of the template
+    seperator = "<!-- ENHANCED_CLOZE -->"
+    cur_front = model["tmpls"][0]["qfmt"]
+    incoming_front = enhanced_cloze()["tmpls"][0]["qfmt"]
+
+    cur_sep_m = re.search(seperator, cur_front)
+    incoming_sep_m = re.search(seperator, incoming_front)
+    if not cur_sep_m:
+        print("Could not find seperator comment, replacing whole front template")
+        model["tmpls"][0]["qfmt"] = incoming_front
     else:
-        if not new_version_available():
-            return
+        cur_before_sep = cur_front[: cur_sep_m.start()]
+        incoming_after_sep = incoming_front[incoming_sep_m.end() :]
+        new_front = f"{cur_before_sep}{seperator}{incoming_after_sep}"
+        new_front = set_version(new_front, incoming_version())
+        new_front = maybe_add_config_option(
+            new_front,
+            "animateScroll",
+            "var animateScroll = true",
+            "scrollToClozeOnToggle",
+        )
+        new_front = maybe_add_config_option(
+            new_front,
+            "showHintsForPseudoClozes",
+            "var showHintsForPseudoClozes = true",
+            "animateScroll",
+        )
+        new_front = maybe_add_config_option(
+            new_front,
+            "underlineRevealedPseudoClozes",
+            "var underlineRevealedPseudoClozes = true",
+            "showHintsForPseudoClozes",
+        )
+        new_front = maybe_add_config_option(
+            new_front,
+            "underlineRevealedGenuineClozes",
+            "var underlineRevealedGenuineClozes = true",
+            "underlineRevealedPseudoClozes",
+        )
+        new_front = maybe_add_config_option(
+            new_front,
+            "revealPseudoClozesByDefault",
+            "var revealPseudoClozesByDefault = false",
+            "underlineRevealedGenuineClozes",
+        )
+        new_front = maybe_add_config_option(
+            new_front,
+            "swapLeftAndRightBorderActions",
+            "var swapLeftAndRightBorderActions = false",
+            "revealPseudoClozesByDefault",
+        )
+        model["tmpls"][0]["qfmt"] = new_front
 
-        if current_version() is None:
-            update_from_unnamed_version()
-            return
-
-        # update the code part, the version number and the config on the front template, keep the rest as it is
-        # so that users can customize the other parts of the template
-        seperator = "<!-- ENHANCED_CLOZE -->"
-        cur_front = model["tmpls"][0]["qfmt"]
-        incoming_front = enhanced_cloze()["tmpls"][0]["qfmt"]
-
-        cur_sep_m = re.search(seperator, cur_front)
-        incoming_sep_m = re.search(seperator, incoming_front)
-        if not cur_sep_m:
-            print("Could not find seperator comment, replacing whole front template")
-            model["tmpls"][0]["qfmt"] = incoming_front
-        else:
-            cur_before_sep = cur_front[: cur_sep_m.start()]
-            incoming_after_sep = incoming_front[incoming_sep_m.end() :]
-            new_front = f"{cur_before_sep}{seperator}{incoming_after_sep}"
-            new_front = set_version(new_front, incoming_version())
-            new_front = maybe_add_config_option(
-                new_front,
-                "animateScroll",
-                "var animateScroll = true",
-                "scrollToClozeOnToggle",
-            )
-            new_front = maybe_add_config_option(
-                new_front,
-                "showHintsForPseudoClozes",
-                "var showHintsForPseudoClozes = true",
-                "animateScroll",
-            )
-            new_front = maybe_add_config_option(
-                new_front,
-                "underlineRevealedPseudoClozes",
-                "var underlineRevealedPseudoClozes = true",
-                "showHintsForPseudoClozes",
-            )
-            new_front = maybe_add_config_option(
-                new_front,
-                "underlineRevealedGenuineClozes",
-                "var underlineRevealedGenuineClozes = true",
-                "underlineRevealedPseudoClozes",
-            )
-            new_front = maybe_add_config_option(
-                new_front,
-                "revealPseudoClozesByDefault",
-                "var revealPseudoClozesByDefault = false",
-                "underlineRevealedGenuineClozes",
-            )
-            new_front = maybe_add_config_option(
-                new_front,
-                "swapLeftAndRightBorderActions",
-                "var swapLeftAndRightBorderActions = false",
-                "revealPseudoClozesByDefault",
-            )
-            model["tmpls"][0]["qfmt"] = new_front
-
-        mw.col.models.update(model)
+    mw.col.models.update(model)
 
 
 def maybe_add_config_option(
@@ -193,20 +214,53 @@ def load_enhanced_cloze(note_type: "NotetypeDict") -> None:
     note_type["css"] = styling
 
 
-def setup_maybe_update_model_on_startup() -> None:
-    def on_profile_did_open():
-        add_compatibility_aliases()
+def update_model_options_with_config_values() -> None:
+    # Create a string with the config variables and their values as javascript variables
+    conf_lines = []
+    for key in conf:
+        value = conf[key]
+        if isinstance(value, str):
+            value = f'"{value}"'
+        elif isinstance(value, bool):
+            value = "true" if value else "false"
+        conf_lines.append(f"var {key}={value}")
+    conf_str = "\n".join(conf_lines)
 
-        if not mw.can_auto_sync():
-            add_or_update_model()
-        else:
-            # add the function to the sync_did_finish hook
-            # and remove it from the hook after sync
-            # so it only gets called on the auto sync on opening Anki
-            def fn():
-                add_or_update_model()
-                sync_did_finish.remove(fn)
+    # Update the front template with the config variables
+    model = mw.col.models.by_name(MODEL_NAME)
+    front = model["tmpls"][0]["qfmt"]
+    front = re.sub(
+        r"<script>[\w\W]*?</script>(?=\n<!-- CONFIG END -->)",
+        f"<script>\n{conf_str}\n</script>",
+        front,
+    )
+    assert conf_str in front, "Could not update note type options"
+    model["tmpls"][0]["qfmt"] = front
 
-            sync_did_finish.append(fn)
+    mw.col.models.update(model)
 
-    profile_did_open.append(on_profile_did_open)
+
+def config_values_from_model() -> Dict[str, Union[str, bool]]:
+    """Get the config values from the javascript variables on the model's front template"""
+    front = mw.col.models.by_name(MODEL_NAME)["tmpls"][0]["qfmt"]
+    config_m = re.search(r"([\w\W]*?)<!-- CONFIG END -->", front)
+    config_str = config_m.group(1)
+    config_lines = config_str.split("\n")
+    config_lines = [
+        line.strip() for line in config_lines if line.strip() and line.startswith("var")
+    ]
+    result = {}
+    for line in config_lines:
+        m = re.match(r"var +(.+?) *= *(.+)", line)
+        if not m:
+            continue
+        key, value = m.groups()
+        if value == "true":
+            value = True
+        elif value == "false":
+            value = False
+        elif value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        result[key] = value
+
+    return result

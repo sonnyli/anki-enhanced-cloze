@@ -13,8 +13,25 @@ from aqt.gui_hooks import main_window_did_init
 from aqt.qt import QMenu
 from aqt.utils import askUser
 
+from .config import conf
 from .constants import MODEL_NAME
 from .model import add_or_update_model, enhanced_cloze
+
+
+def setup_enhanced_cloze_menu() -> None:
+    def on_main_window_did_init():
+        menu: QMenu = mw.form.menuTools
+        submenu = menu.addMenu("Enhanced Cloze")
+        add_config_action_to_menu(submenu)
+        add_reset_notetype_action_to_menu(submenu)
+        add_reset_css_action_to_menu(submenu)
+
+    main_window_did_init.append(on_main_window_did_init)
+
+
+def add_config_action_to_menu(menu: QMenu) -> None:
+    action = menu.addAction("Config")
+    action.triggered.connect(conf.open_config)
 
 
 def add_reset_notetype_action_to_menu(menu: QMenu) -> None:
@@ -59,13 +76,3 @@ def add_reset_css_action_to_menu(menu: QMenu) -> None:
         mw.col.models.update(current_model)
 
     action.triggered.connect(on_triggered)
-
-
-def setup_enhanced_cloze_menu() -> None:
-    def on_main_window_did_init():
-        menu: QMenu = mw.form.menuTools
-        submenu = menu.addMenu("Enhanced Cloze")
-        add_reset_notetype_action_to_menu(submenu)
-        add_reset_css_action_to_menu(submenu)
-
-    main_window_did_init.append(on_main_window_did_init)
