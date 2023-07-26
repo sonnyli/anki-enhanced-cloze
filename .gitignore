@@ -1,5 +1,7 @@
 *code-workspace
 
+meta.json
+
 *.pyc
 __pycache__/
 src/*/__pycache__/

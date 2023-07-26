@@ -44,7 +44,6 @@ class ConfigWindow(QDialog):
         self.setup_buttons(self.btn_layout)
 
     def setup_buttons(self, btn_box: "ConfigLayout") -> None:
-
         self.advanced_btn = QPushButton("Advanced")
         self.advanced_btn.clicked.connect(self.on_advanced)
         btn_box.addWidget(self.advanced_btn)
@@ -241,9 +240,7 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        combobox.currentTextChanged.connect(
-            lambda text: self.conf.set(key, text)
-        )
+        combobox.currentTextChanged.connect(lambda text: self.conf.set(key, text))
 
         if description is not None:
             row = self.hlayout()
@@ -455,6 +452,46 @@ class ConfigLayout(QBoxLayout):
         button.clicked.connect(get_path)
 
         return (line_edit, button)
+
+    def shortcut_edit(
+        self, key, description: Optional[str] = None, tooltip: Optional[str] = None
+    ) -> Tuple[QKeySequenceEdit, QPushButton]:
+        edit = QKeySequenceEdit()
+
+        if description is not None:
+            row = self.hlayout()
+            row.text(description, tooltip=tooltip)
+
+        def update():
+            val = self.conf.get(key)
+            if not isinstance(val, str):
+                raise InvalidConfigValueError(key, "str", val)
+            val = val.replace(" ", "")
+            edit.setKeySequence(val)
+
+        self.widget_updates.append(update)
+
+        edit.keySequenceChanged.connect(  # type: ignore
+            lambda s: self.conf.set(key, edit.keySequence().toString())
+        )
+
+        self.addWidget(edit)
+
+        def on_shortcut_clear_btn_click():
+            edit.clear()
+
+        shortcut_clear_btn = QPushButton("Clear")
+        shortcut_clear_btn.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
+        shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)  # type: ignore
+
+        layout = QHBoxLayout()
+        layout.addWidget(edit)
+        layout.addWidget(shortcut_clear_btn)
+
+        self.addLayout(layout)
+        return edit, shortcut_clear_btn
 
     # Layout widgets
 
