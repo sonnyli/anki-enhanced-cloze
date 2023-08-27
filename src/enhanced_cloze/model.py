@@ -133,7 +133,7 @@ def add_or_update_model() -> None:
         )
         model["tmpls"][0]["qfmt"] = new_front
 
-    mw.col.models.update(model)
+    mw.col.models.update(model, preserve_usn=False)
 
 
 def maybe_add_config_option(
