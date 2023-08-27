@@ -1,4 +1,3 @@
-
 {{FrontSide}}
 
 <span style="display:none">{{cloze:Content}}</span>
@@ -8,8 +7,12 @@
         $('#info').show(0)
         $('#mnemonics').show(0)
         $('#extra').show(0)
-        $('.genuine-cloze').each(function (index, elem) {
-            toggleCloze(elem, 'answer')
-        })
+
+        // The setTimeout is needed on AnkiMobile so that the cloze is rendered before we try to toggle it
+        setTimeout(function () {
+            $('.genuine-cloze').each(function (index, elem) {
+                toggleCloze(elem, 'answer')
+            })
+        }, 0)
     })
 </script>
