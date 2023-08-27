@@ -79,8 +79,8 @@ def add_or_update_model() -> None:
         update_from_unnamed_version()
         return
 
-    # update the code part, the version number and the config on the front template, keep the rest as it is
-    # so that users can customize the other parts of the template
+    # for the front template, update the code part, the version number and the config on the front template,
+    # keep the rest as it is so that users can customize the other parts of the template
     seperator = "<!-- ENHANCED_CLOZE -->"
     cur_front = model["tmpls"][0]["qfmt"]
     incoming_front = enhanced_cloze()["tmpls"][0]["qfmt"]
@@ -132,6 +132,9 @@ def add_or_update_model() -> None:
             "revealPseudoClozesByDefault",
         )
         model["tmpls"][0]["qfmt"] = new_front
+
+    # update the back template
+    model["tmpls"][0]["afmt"] = enhanced_cloze()["tmpls"][0]["afmt"]
 
     mw.col.models.update(model, preserve_usn=False)
 
