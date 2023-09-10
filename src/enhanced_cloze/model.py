@@ -250,7 +250,9 @@ def config_values_from_model() -> Dict[str, Union[str, bool]]:
     config_str = config_m.group(1)
     config_lines = config_str.split("\n")
     config_lines = [
-        line.strip() for line in config_lines if line.strip() and line.startswith("var")
+        stripped_line
+        for line in config_lines
+        if (stripped_line := line.strip()).startswith("var")
     ]
     result = {}
     for line in config_lines:
