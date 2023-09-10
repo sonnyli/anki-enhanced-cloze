@@ -4,12 +4,11 @@ aims to improve Anki's mechanism of displaying clozes and offers great features 
 The name of the note type the add-on uses is "<b>Enhanced Cloze 2.1 v2</b>".
 
 <b>Preview</b>
+
 <img src="https://raw.githubusercontent.com/RisingOrange/anki-enhanced-cloze/master/screenshots/main_features.gif">
-<div></div>
 <img src="https://raw.githubusercontent.com/RisingOrange/anki-enhanced-cloze/master/screenshots/main_features_note.png">
 
-<b>Main features</b>
-Improved Mechanism of Displaying Clozes
+<b>Improved Mechanism of Displaying Clozes</b>
 - Take card1 for example.
     - All c1 clozes (called "genuine clozes") will be red.
     - All other clozes (called "pseudo clozes" for this card), eg. c2, c3 will be blue.
@@ -17,24 +16,24 @@ Improved Mechanism of Displaying Clozes
 - You can show the answer of every cloze (genuine or pseudo) by clicking it.
 - This means you can think about a genuize cloze and check the answer one by one without getting hints from pseudo-clozes and genuine clozes after it.
 
-Handy Keyboard And Touchscreen Shortcut
+<b>Handy Keyboard And Touchscreen Shortcut</b>
 You can...
 - uncover genuine clozes one by one using the keyboard shortcut [J] (conifgurable) or by touching the left border of the card.
 - uncover pseudo clozes one by one using the keyboard shortcut [N] (conifgurable) or by touching the right border of the card
 - toggle all genuine clozes using the keyboard shortcut [Shift+J] (conifgurable) border.
 - toggle all pseudo clozes using the keyboard shortcut [Shift+N] (conifgurable) border.
 - This makes uncovering clozes super convenient, no matter whether it's on a computer using the keyboard or on a mobile phone.
-- You can edit the shortcut keys in the config (Tools -> Enhanced Cloze -> Config)
+- You can edit the shortcut keys in the config (Tools -&gt; Enhanced Cloze -&gt; Config)
 
-Auto Scroll To The Relevant Cloze
+<b>Auto Scroll To The Relevant Cloze</b>
 - The card will scroll to the first genuine cloze at the very beginning.
-- When you use shortcut to uncover clozes one by one, if the next cloze is out of view (common situation on mobile phones with small screen), the card will automatically scroll to it. This makes for a super fluent experience of answering cards. The behaviour can be turned off (Tools -> Enhanced Cloze -> Config).
+- When you use shortcut to uncover clozes one by one, if the next cloze is out of view (common situation on mobile phones with small screen), the card will automatically scroll to it. This makes for a super fluent experience of answering cards. The behaviour can be turned off (Tools -&gt; Enhanced Cloze -&gt; Config).
 
-Can Be Used In No-Cloze Basic Mode
+<b>Can Be Used In No-Cloze Basic Mode</b>
 - It is also Ok to go without clozes using this note type. (Note: Creating such notes only works on Anki Desktop, not on mobile!) Just type the question in the Content field and the answer in the Note field. The Note field will be hidden on the front of the card and shown on the back of the card, just like with the Basic note type.
 - Anki won't warn you that no clozes are found.
 
-"Normal" clozes
+<b>"Normal" clozes</b>
 - If you want a cloze to alway be displayed when it's a pseudo cloze, prepend the answer with a #-sign like this: {{c1::#some text}}.
 
 <b>Usage</b>
@@ -45,63 +44,91 @@ Can Be Used In No-Cloze Basic Mode
 - When you have the <a href="https://ankiweb.net/shared/info/385888438" rel="nofollow">Edit Field During Review (Cloze)</a> add-on installed, Ctrl+Click fields to edit them.
 
 <b>Configuration</b>
+
 <img src="https://raw.githubusercontent.com/RisingOrange/anki-enhanced-cloze/master/screenshots/configuration.png" height="600">
-To open this dialog, select Tools -> Enhanced Cloze -> Config.
+
+To open this dialog, select Tools -&gt; Enhanced Cloze -&gt; Config.
 If the underline options do not work, try using "Reset Enhanced Clozes css to default" from the Tools menu of the main
 window.
 
 <b>Credits</b>
-The 2022-02-04 - update was inspired by <a href="https://github.com/TRIAEIOU" rel="nofollow">TRIAEIOU's</a> <a
-    href="https://ankiweb.net/shared/info/1632356464" rel="nofollow">Flexible Cloze</a> add-on
-This add-on is a fork of <a href="https://github.com/ijgnd/anki-enhanced-cloze"
-    rel="nofollow">https://github.com/ijgnd/anki-enhanced-cloze</a> by <a href="https://github.com/TRIAEIOU"
-    rel="nofollow">ijgnd</a>
-Previous version of the add-on by Arthur Milchior: <a href="https://github.com/Arthur-Milchior/anki-enhanced-cloze"
-    rel="nofollow">https://github.com/Arthur-Milchior/anki-enhanced-cloze</a>
-Previous version of the add-on by LuZhe610: <a href="https://ankiweb.net/shared/info/873439973"
-    rel="nofollow">https://ankiweb.net/shared/info/873439973</a>
-Thanks to BlueGreenMagick for creating the <a href="https://github.com/BlueGreenMagick/ankiaddonconfig">ankiaddonconfig</a> package used in this add-on.
+The 2022-02-04 - update was inspired by <a href="https://github.com/TRIAEIOU" rel="nofollow">TRIAEIOU's</a> <a href="https://ankiweb.net/shared/info/1632356464" rel="nofollow">Flexible Cloze</a> add-on
+This add-on is a fork of <a href="https://github.com/ijgnd/anki-enhanced-cloze" rel="nofollow">https://github.com/ijgnd/anki-enhanced-cloze</a> by <a href="https://github.com/TRIAEIOU" rel="nofollow">ijgnd</a>
+Previous version of the add-on by Arthur Milchior: <a href="https://github.com/Arthur-Milchior/anki-enhanced-cloze" rel="nofollow">https://github.com/Arthur-Milchior/anki-enhanced-cloze</a>
+Previous version of the add-on by LuZhe610: <a href="https://ankiweb.net/shared/info/873439973" rel="nofollow">https://ankiweb.net/shared/info/873439973</a>
+Thanks to BlueGreenMagick for creating the <a href="https://github.com/BlueGreenMagick/ankiaddonconfig" rel="nofollow">ankiaddonconfig</a> package used in this add-on.
 
 <b>Problems, Bugs, Errors, Improvements</b>
-If you have an idea for an improvement or encounter a problem please create an issue on <a
-    href="https://github.com/RisingOrange/anki-enhanced-cloze/issues" rel="nofollow">Github</a><a>.</a>
+If you have an idea for an improvement or encounter a problem please create an issue on <a href="https://github.com/RisingOrange/anki-enhanced-cloze/issues" rel="nofollow">Github</a><a>.</a>
 
 <b>Support my work</b>
 If this add-on is useful to you please consider buying me a coffee:
+
 <a href="https://www.buymeacoffee.com/jakubfidler" rel="nofollow"><img src="https://i.imgur.com/9bfEVZ6.jpg"></a>
 
 <b>Changelog</b>
-2023-07-26: Added config dialog (Tools -> Enhanced Cloze -> Config)
+2023-09-10: Toggling clozes on mobile is less finicky now. Fixed config values not getting read into config properly.
+Fixed note type changes not always getting synced to AnkiWeb.
+
+2023-08-27: Fix for note type not working when reviewing on AnkiWeb
+
+2023-07-26: Added config dialog (Tools -&gt; Enhanced Cloze -&gt; Config)
+
 2023-07-25: Added option to swap left and right border actions
+
 2023-04-26: Fix basic-mode clozes on AnkiDroid on Anki &gt;= 2.1.61
+
 2022-11-15: Fix incompatibility with CrowdAnki
+
 2022-07-21: Changes to actions in the Tools menu.
+
 2022-07-19: Fixed the Extra field. To get the fixed note type you have to go to Tools -&gt; "Reset Enhanced Cloze note
 type to default" on the main Anki window
+
 2022-07-15: Added option to reveal pseudo-clozes by default
+
 2022-04-22: Added compatibility with <a href="https://ankiweb.net/shared/info/385888438" rel="nofollow">Edit Field
     During Review (Cloze)</a> add-on, added option to not underline revealed clozes
+
 2022-03-18: Fixes for iOS, other fixes
+
 2022-03-15: Added option to disable hints for pseudo clozes (showHintsForPseudoClozes on the front card template)
+
 2022-03-15: Added option to reset note type to default version (it's in the main window in the Tools menu)
+
 2022-02-09: Added option to disable scroll animation (animateScroll = false). Force a full sync to get the new version
+
 to your mobile device (Preferences -&gt; Network -&gt; Check "On next sync force changes in one direction")
+
 2022-02-09: Shortcuts now reveal only one cloze even if multiple clozes have the same id
-2022-02-04: Big update: Adding/Editing on mobile works now, removed unnecessary fields (Thanks to TRIAEIOU for showing
-how to do this), added shortcuts, some fixes
+
+2022-02-04: Big update: Adding/Editing on mobile works now, removed unnecessary fields (Thanks to TRIAEIOU for showing how to do this), added shortcuts, some fixes
+
 2022-01-28: Update for Anki 2.1.50
+
 2021-10-20: Fixed incompatibility with <a href="https://ankiweb.net/shared/info/385888438" rel="nofollow">Field during
     Review (Cloze)</a> (cards work now, but you still can't edit them during review)
+
 2021-10-15: Fixed images not working in the Content field (again, because the first fix was not complete)
+
 2021-9-31: Fixed touches not working properly on iOS devices
+
 2021-9-22: Fixed mathjax not working inside of clozes
+
 2021-9-16: Fixed images not working in first field
+
 2021-9-14: Fixed incompatibility with Popup-dictionary
+
 2021-9-08: Fixed no-cloze-mode on Ankidroid (force sync collection from desktop to phone to make it work) + clozes start
 at 1 when using the shortcut in the editor
+
 2021-8-28: Add-on doesn't overwrite changes of the note type now (you can add new fields, just don't delete the existing
 ones)
+
 2021-8-26: You can now have 50 clozes on one note if you want to (before this update the limit was 20)
+
 2021-8-19: Added backwards compatibility down to Anki 2.1.28
+
 2021-8-18: Fixed no cloze mode
+
 2021-8-17: Fixed "type in the answer" message showing up on mobile, Fixed "show one cloze" hotkey action
