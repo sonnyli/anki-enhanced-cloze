@@ -74,7 +74,7 @@ def add_reset_css_action_to_menu(menu: QMenu) -> None:
             return
 
         current_model["css"] = enhanced_cloze()["css"]
-        mw.col.models.update(current_model)
+        mw.col.models.update_dict(current_model)
         tooltip("Successfully reset Enhanced Cloze note type styling.")
 
     action.triggered.connect(on_triggered)

@@ -136,7 +136,7 @@ def add_or_update_model() -> None:
     # update the back template
     model["tmpls"][0]["afmt"] = enhanced_cloze()["tmpls"][0]["afmt"]
 
-    mw.col.models.update(model, preserve_usn=False)
+    mw.col.models.update_dict(model)
 
 
 def maybe_add_config_option(
@@ -240,7 +240,7 @@ def update_model_options_with_config_values() -> None:
     assert conf_str in front, "Could not update note type options"
     model["tmpls"][0]["qfmt"] = front
 
-    mw.col.models.update(model)
+    mw.col.models.update_dict(model)
 
 
 def config_values_from_model() -> Dict[str, Union[str, bool]]:
