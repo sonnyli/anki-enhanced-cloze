@@ -196,70 +196,64 @@
 
 
         function setupClozeEvents() {
+            // we are not using enhancedClozeAddEventListener (which prevents duplicate event listeners) so we need to
+            // make sure that the listeners are only added once using the firstTimeLoadingEnhancedCloze variable
             if (typeof firstTimeLoadingEnhancedCloze === 'undefined') {
                 firstTimeLoadingEnhancedCloze = false
-
                 if (/webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator
                     .userAgent)) {
-                    // For Android click events are handled normally, but for iOS we need to use touch events
-                    addMobileClickHandler(
-                        '.pseudo-cloze',
-                        function (event) {
-                            toggleCloze(event.target, 'toggle');
-                        }
-                    )
-                    addMobileClickHandler(
-                        '.genuine-cloze',
-                        function (event) {
-                            toggleCloze(event.target, 'toggle');
-                        }
-                    )
-                    addMobileClickHandler(
-                        '#show-one-cloze-left',
-                        function (event) {
-                            revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
-                        }
-                    )
-                    addMobileClickHandler(
-                        '#show-one-cloze-right',
-                        function (event) {
-                            revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
-                        }
-                    )
+                    setupIOsClozeClickEvents()
                 } else {
-                    $(document).on('click', '.pseudo-cloze', function (event) {
-                        toggleCloze(event.target, 'toggle');
-                    });
-
-                    $(document).on('click', '.genuine-cloze', function (event) {
-                        toggleCloze(event.target, 'toggle');
-                    });
-
-                    $(document).on('click', '#show-one-cloze-left', function (event) {
-                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
-                    });
-
-                    $(document).on('click', '#show-one-cloze-right', function (event) {
-                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
-                    });
+                    setupDesktopAndAndroidClozeClickEvents()
                 }
-
-                window.enhancedClozeAddEventListener("keydown", (event) => {
-                    if (shortcutMatcher(revealNextGenuineClozeShortcut)(event)) {
-                        revealOneClozeOfAType("genuine");
-                    }
-                    if (shortcutMatcher(revealAllGenuineClozesShortcut)(event)) {
-                        toggleAllClozesOfAType("genuine")
-                    }
-                    if (shortcutMatcher(revealNextPseudoClozeShortcut)(event)) {
-                        revealOneClozeOfAType("pseudo");
-                    }
-                    if (shortcutMatcher(revealAllPseudoClozesShortcut)(event)) {
-                        toggleAllClozesOfAType("pseudo");
-                    }
-                })
-
             }
+
+            setupClozeKeyEvents()
+        }
+        function setupDesktopAndAndroidClozeClickEvents() {
+            $(document).on('click', '.pseudo-cloze', function (event) {
+                toggleCloze(event.target, 'toggle');
+            });
+
+            $(document).on('click', '.genuine-cloze', function (event) {
+                toggleCloze(event.target, 'toggle');
+            });
+
+            $(document).on('click', '#show-one-cloze-left', function (event) {
+                revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
+            });
+
+            $(document).on('click', '#show-one-cloze-right', function (event) {
+                revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
+            });
+        }
+
+        function setupIOsClozeClickEvents() {
+            // For ios click events don't work, so we use a custom click handler
+            addMobileClickHandler(
+                '.pseudo-cloze',
+                function (event) {
+                    toggleCloze(event.target, 'toggle');
+                }
+            )
+            addMobileClickHandler(
+                '.genuine-cloze',
+                function (event) {
+                    toggleCloze(event.target, 'toggle');
+                }
+            )
+            addMobileClickHandler(
+                '#show-one-cloze-left',
+                function (event) {
+                    revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
+                }
+            )
+            addMobileClickHandler(
+                '#show-one-cloze-right',
+                function (event) {
+                    revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
+                }
+            )
         }
 
         function addMobileClickHandler(selector, callback) {
@@ -304,6 +298,25 @@
                 touchStartPosition = null;
             });
         }
+
+        function setupClozeKeyEvents() {
+            window.enhancedClozeAddEventListener("keydown", (event) => {
+                if (shortcutMatcher(revealNextGenuineClozeShortcut)(event)) {
+                    revealOneClozeOfAType("genuine");
+                }
+                if (shortcutMatcher(revealAllGenuineClozesShortcut)(event)) {
+                    toggleAllClozesOfAType("genuine")
+                }
+                if (shortcutMatcher(revealNextPseudoClozeShortcut)(event)) {
+                    revealOneClozeOfAType("pseudo");
+                }
+                if (shortcutMatcher(revealAllPseudoClozesShortcut)(event)) {
+                    toggleAllClozesOfAType("pseudo");
+                }
+            })
+        }
+
+
 
         function setupEditFieldDuringReview() {
             moveEditClozesElm()
