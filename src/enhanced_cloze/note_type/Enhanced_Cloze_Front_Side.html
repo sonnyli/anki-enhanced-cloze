@@ -201,23 +201,33 @@
 
                 if (/webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator
                     .userAgent)) {
-                    $(document).on('touchstart', '.pseudo-cloze', function (event) {
-                        toggleCloze(event.target, 'toggle');
-                    });
-
-                    $(document).on('touchstart', '.genuine-cloze', function (event) {
-                        toggleCloze(event.target, 'toggle');
-                    });
-
-                    $(document).on('touchstart', '#show-one-cloze-left', function (event) {
-                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
-                    });
-
-                    $(document).on('touchstart', '#show-one-cloze-right', function (event) {
-                        revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
-                    });
+                    // For Android click events are handled normally, but for iOS we need to use touch events
+                    addMobileClickHandler(
+                        '.pseudo-cloze',
+                        function (event) {
+                            toggleCloze(event.target, 'toggle');
+                        }
+                    )
+                    addMobileClickHandler(
+                        '.genuine-cloze',
+                        function (event) {
+                            toggleCloze(event.target, 'toggle');
+                        }
+                    )
+                    addMobileClickHandler(
+                        '#show-one-cloze-left',
+                        function (event) {
+                            revealOneClozeOfAType(swapLeftAndRightBorderActions ? "pseudo" : "genuine");
+                        }
+                    )
+                    addMobileClickHandler(
+                        '#show-one-cloze-right',
+                        function (event) {
+                            revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
+                        }
+                    )
                 } else {
-                    $(document).on('click touchstart', '.pseudo-cloze', function (event) {
+                    $(document).on('click', '.pseudo-cloze', function (event) {
                         toggleCloze(event.target, 'toggle');
                     });
 
@@ -233,23 +243,66 @@
                         revealOneClozeOfAType(swapLeftAndRightBorderActions ? "genuine" : "pseudo");
                     });
                 }
+
+                window.enhancedClozeAddEventListener("keydown", (event) => {
+                    if (shortcutMatcher(revealNextGenuineClozeShortcut)(event)) {
+                        revealOneClozeOfAType("genuine");
+                    }
+                    if (shortcutMatcher(revealAllGenuineClozesShortcut)(event)) {
+                        toggleAllClozesOfAType("genuine")
+                    }
+                    if (shortcutMatcher(revealNextPseudoClozeShortcut)(event)) {
+                        revealOneClozeOfAType("pseudo");
+                    }
+                    if (shortcutMatcher(revealAllPseudoClozesShortcut)(event)) {
+                        toggleAllClozesOfAType("pseudo");
+                    }
+                })
+
             }
+        }
 
-            window.enhancedClozeAddEventListener("keydown", (event) => {
-                if (shortcutMatcher(revealNextGenuineClozeShortcut)(event)) {
-                    revealOneClozeOfAType("genuine");
-                }
-                if (shortcutMatcher(revealAllGenuineClozesShortcut)(event)) {
-                    toggleAllClozesOfAType("genuine")
-                }
-                if (shortcutMatcher(revealNextPseudoClozeShortcut)(event)) {
-                    revealOneClozeOfAType("pseudo");
-                }
-                if (shortcutMatcher(revealAllPseudoClozesShortcut)(event)) {
-                    toggleAllClozesOfAType("pseudo");
-                }
-            })
+        function addMobileClickHandler(selector, callback) {
+            // "click" events don't work on AnkiMobile, this is a workaround.
+            // This uses touchstart and touchend events to detect a click.
+            // If the touchend position is close enough to the touchstart position,
+            // the callback is called.
 
+            // This is the maximum distance the touchend position can differ from the touchstart position
+            // to still be considered a click
+            const distanceThreshold = 10;
+            // Stores the last touchstart position
+            let touchStartPosition = null;
+
+            $(document).on('touchstart', selector, function (event) {
+                const touches = event.originalEvent.touches;
+                if (touches.length === 1) {
+                    const touch = touches[0];
+                    touchStartPosition = {
+                        x: touch.clientX,
+                        y: touch.clientY
+                    };
+                } else {
+                    touchStartPosition = null;
+                }
+
+            });
+
+            $(document).on('touchend', selector, function (event) {
+                const changedTouches = event.originalEvent.changedTouches;
+                if (touchStartPosition && changedTouches.length === 1) {
+                    const changedTouch = changedTouches[0];
+                    const touchEndX = changedTouch.clientX;
+                    const touchEndY = changedTouch.clientY;
+                    const diffX = Math.abs(touchStartPosition.x - touchEndX);
+                    const diffY = Math.abs(touchStartPosition.y - touchEndY);
+                    if (diffX < distanceThreshold && diffY < distanceThreshold) {
+                        callback(event);
+                    }
+                }
+
+                touchStartPosition = null;
+            });
         }
 
         function setupEditFieldDuringReview() {
