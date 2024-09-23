@@ -15,6 +15,15 @@
 <!-- CONFIG END -->
 
 <div id="card-body">
+    \( \definecolor{yellow}{RGB}{255, 212, 0} \)
+    \( \definecolor{red}{RGB}{255, 102, 102} \)
+    \( \definecolor{green}{RGB}{95, 178, 54} \)
+    \( \definecolor{blue}{RGB}{46, 168, 229} \)
+    \( \definecolor{purple}{RGB}{162, 138, 229} \)
+    \( \definecolor{magenta}{RGB}{229, 110, 238} \)
+    \( \definecolor{orange}{RGB}{241, 152, 55} \)
+    \( \definecolor{gray}{RGB}{170, 170, 170} \)
+
     <div id="main-section" class="content">
         <!-- this element will contain the actual content - the enhanced clozes -->
         <span id="enhanced-clozes"></span>
@@ -172,7 +181,7 @@
             // genuine clozes refer to those belong to current card and need to be answered, e.g. { {c2::abc} } on card2
             // pseudo clozes refer to the opposite, e.g. { {c1::abc} } and { {c3::abc} } on card2
             $('.genuine-cloze, .pseudo-cloze').each(function (index, elem) {
-                toggleCloze(elem, 'hint')
+                toggleCloze(elem, 'hint', false);
             });
 
 
@@ -315,8 +324,6 @@
                 }
             })
         }
-
-
 
         function setupEditFieldDuringReview() {
             moveEditClozesElm()
@@ -547,7 +554,7 @@
     }
 
     // This function is defined outside of enhancedClozesMain because it is used on the back side of the card as well
-    function toggleCloze(elem, displayOption) {
+    function toggleCloze(elem, displayOption, renderMathjax = true) {
 
         if (elem == null) return
 
@@ -590,15 +597,12 @@
         }
 
         // rerun mathjax on the document so that the cloze text gets formatted
-        // ... for MathJax 2
-        try {
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-        } catch { }
-        // ... for MathJax 3
-        try {
-            MathJax.typesetPromise()
-        } catch { }
-
+        if (renderMathjax) {
+            try {
+                // await MathJax.typesetPromise()
+                MathJax.typeset()
+            } catch { }
+        }
     }
 
     enhancedClozesMain()
